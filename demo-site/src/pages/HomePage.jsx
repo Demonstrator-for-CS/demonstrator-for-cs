@@ -1,5 +1,5 @@
 import React from "react";
-import DemoSection from "../components/DemoSection.jsx";
+import DemoSection from "@/components/DemoSection.jsx";
 
 export default function HomePage() {
   return (
