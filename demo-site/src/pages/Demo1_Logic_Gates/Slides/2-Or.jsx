@@ -31,9 +31,8 @@ export default function OrGate() {
                 </p>
 
                 <div className="flex gap-12 items-center justify-center">
-                    {/* Interactive Circuit Column */}
+                    {/* Gate column */}
                     <div className="flex-1 flex items-center justify-center gap-6">
-                        {/* Input A */}
                         <div className="flex flex-col items-center gap-2">
                             <div className="text-lg font-semibold">Input A</div>
                             <button
@@ -42,20 +41,17 @@ export default function OrGate() {
                                     inputA
                                         ? 'bg-green-500 text-white shadow-lg shadow-green-500/50'
                                         : 'bg-gray-300 text-gray-600'
-                                }`}
-                            >
+                                }`}>
                                 {inputA ? '1' : '0'}
                             </button>
                             <div className="text-sm text-gray-500">Press [1]</div>
                         </div>
 
-                        {/* Arrow */}
                         <div className="flex flex-col items-center">
                             <div className="text-3xl font-bold text-purple-600 mb-2">OR</div>
                             <div className="text-5xl text-purple-600">→</div>
                         </div>
 
-                        {/* Input B */}
                         <div className="flex flex-col items-center gap-2">
                             <div className="text-lg font-semibold">Input B</div>
                             <button
@@ -64,17 +60,14 @@ export default function OrGate() {
                                     inputB
                                         ? 'bg-green-500 text-white shadow-lg shadow-green-500/50'
                                         : 'bg-gray-300 text-gray-600'
-                                }`}
-                            >
+                                }`}>
                                 {inputB ? '1' : '0'}
                             </button>
                             <div className="text-sm text-gray-500">Press [2]</div>
                         </div>
 
-                        {/* Arrow */}
                         <div className="text-5xl text-gray-400">→</div>
 
-                        {/* Output */}
                         <div className="flex flex-col items-center gap-2">
                             <div className="text-lg font-semibold">Output</div>
                             <div
@@ -82,18 +75,16 @@ export default function OrGate() {
                                     output
                                         ? 'bg-green-500 text-white shadow-lg shadow-green-500/50'
                                         : 'bg-gray-300 text-gray-600'
-                                }`}
-                            >
+                                }`}>
                                 {output ? '1' : '0'}
                             </div>
                             <div className="h-6"></div>
                         </div>
                     </div>
 
-                    {/* Vertical Divider */}
                     <div className="w-px h-96 bg-gray-300"></div>
 
-                    {/* Truth Table Column */}
+                    {/* Truth Table */}
                     <div className="flex-1">
                         <h3 className="text-2xl font-bold mb-6 text-center">Truth Table</h3>
                         <div className="grid grid-cols-3 gap-3 text-center font-mono text-lg">

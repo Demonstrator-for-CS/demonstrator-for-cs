@@ -28,9 +28,8 @@ export default function NotGate() {
                 </p>
 
                 <div className="flex gap-12 items-center justify-center">
-                    {/* Interactive Circuit Column */}
+                    {/* Gate Column */}
                     <div className="flex-1 flex items-center justify-center gap-8">
-                        {/* Input */}
                         <div className="flex flex-col items-center gap-2">
                             <div className="text-lg font-semibold">Input</div>
                             <button
@@ -39,20 +38,17 @@ export default function NotGate() {
                                     input
                                         ? 'bg-green-500 text-white shadow-lg shadow-green-500/50'
                                         : 'bg-gray-300 text-gray-600'
-                                }`}
-                            >
+                                }`}>
                                 {input ? '1' : '0'}
                             </button>
                             <div className="text-sm text-gray-500">Press [1]</div>
                         </div>
 
-                        {/* NOT Label and Arrow */}
                         <div className="flex flex-col items-center">
                             <div className="text-3xl font-bold text-purple-600 mb-2">NOT</div>
                             <div className="text-5xl text-purple-600">→</div>
                         </div>
 
-                        {/* Output */}
                         <div className="flex flex-col items-center gap-2">
                             <div className="text-lg font-semibold">Output</div>
                             <div
@@ -60,18 +56,16 @@ export default function NotGate() {
                                     output
                                         ? 'bg-green-500 text-white shadow-lg shadow-green-500/50'
                                         : 'bg-gray-300 text-gray-600'
-                                }`}
-                            >
+                                }`}>
                                 {output ? '1' : '0'}
                             </div>
                             <div className="h-6"></div>
                         </div>
                     </div>
 
-                    {/* Vertical Divider */}
                     <div className="w-px h-96 bg-gray-300"></div>
 
-                    {/* Truth Table Column */}
+                    {/* Truth Table */}
                     <div className="flex-1">
                         <h3 className="text-2xl font-bold mb-6 text-center">Truth Table</h3>
                         <div className="grid grid-cols-2 gap-3 text-center font-mono text-lg max-w-sm mx-auto">
