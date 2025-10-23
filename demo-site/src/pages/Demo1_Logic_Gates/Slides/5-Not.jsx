@@ -22,7 +22,7 @@ export default function NotGate() {
         <div className="flex flex-col items-center justify-center h-full px-8">
             <h2 className="text-5xl font-bold mb-8 text-purple-600">NOT Gate</h2>
 
-            <div className="bg-white p-8 rounded-lg shadow-lg max-w-6xl w-full">
+            <div className="bg-white p-8 rounded-lg shadow-lg max-w-6xl w-full animate-fade-in opacity-0" style={{ animationDelay: '0.5s', animationFillMode: 'forwards' }}>
                 <p className="text-xl mb-8 text-gray-700 text-center">
                     The NOT gate <span className="font-bold">inverts</span> the input. It has only one input.
                 </p>
