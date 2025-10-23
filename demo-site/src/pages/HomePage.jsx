@@ -1,7 +1,7 @@
 import React from "react";
-import DemoSection from "./DemoSection.jsx";
+import DemoSection from "../components/DemoSection.jsx";
 
-export default function App() {
+export default function HomePage() {
   return (
     <div>
       <header>
