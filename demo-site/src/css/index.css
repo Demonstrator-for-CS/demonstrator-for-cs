@@ -1,6 +1,0 @@
-@import "../../node_modules/tailwindcss/dist/lib.d.mts";
-
-body {
-  font-family: system-ui, Arial, sans-serif;
-  margin: 16px;
-}
