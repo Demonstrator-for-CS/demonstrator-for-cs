@@ -4,9 +4,6 @@ import DemoSection from "@/components/DemoSection.jsx";
 export default function App() {
   return (
     <div>
-        <div className="text-2xl">
-            HIIII
-        </div>
       <header>
         <h1>CS Demonstrator</h1>
         <nav>
