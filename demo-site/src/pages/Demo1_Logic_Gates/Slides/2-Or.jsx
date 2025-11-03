@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import simple_or from "../Images/simple_or.png"
+import Or from "@/pages/Demo1_Logic_Gates/Images/or_gate.png";
 
 export default function OrGate() {
     const [inputA, setInputA] = useState(false);
@@ -32,42 +34,44 @@ export default function OrGate() {
 
                 <div className="flex gap-12 items-center justify-center">
                     {/* Gate column */}
-                    <div className="flex-1 flex items-center justify-center gap-6">
-                        <div className="flex flex-col items-center gap-2">
-                            <div className="text-lg font-semibold">Input A</div>
-                            <button
-                                onClick={() => setInputA(!inputA)}
-                                className={`w-24 h-24 rounded-lg font-bold text-2xl transition-all ${
-                                    inputA
-                                        ? 'bg-green-500 text-white shadow-lg shadow-green-500/50'
-                                        : 'bg-gray-300 text-gray-600'
-                                }`}>
-                                {inputA ? '1' : '0'}
-                            </button>
-                            <div className="text-sm text-gray-500">Press [1]</div>
+                    <div className="flex-1 flex items-center justify-center gap-8">
+                        {/* Inputs */}
+                        <div className="flex flex-col gap-8">
+                            <div className="flex flex-col items-center gap-2">
+                                <div className="text-lg font-semibold">Input A</div>
+                                <button
+                                    onClick={() => setInputA(!inputA)}
+                                    className={`w-24 h-24 rounded-lg font-bold text-2xl transition-all ${
+                                        inputA
+                                            ? 'bg-green-500 text-white shadow-lg shadow-green-500/50'
+                                            : 'bg-gray-300 text-gray-600'
+                                    }`}>
+                                    {inputA ? '1' : '0'}
+                                </button>
+                                <div className="text-sm text-gray-500">Press [1]</div>
+                            </div>
+
+                            <div className="flex flex-col items-center gap-2">
+                                <div className="text-lg font-semibold">Input B</div>
+                                <button
+                                    onClick={() => setInputB(!inputB)}
+                                    className={`w-24 h-24 rounded-lg font-bold text-2xl transition-all ${
+                                        inputB
+                                            ? 'bg-green-500 text-white shadow-lg shadow-green-500/50'
+                                            : 'bg-gray-300 text-gray-600'
+                                    }`}>
+                                    {inputB ? '1' : '0'}
+                                </button>
+                                <div className="text-sm text-gray-500">Press [2]</div>
+                            </div>
                         </div>
 
-                        <div className="flex flex-col items-center">
-                            <div className="text-3xl font-bold text-purple-600 mb-2">OR</div>
-                            <div className="text-5xl text-purple-600">→</div>
+                        {/* OR Gate Symbol */}
+                        <div className="">
+                            <img className="img-fluid" src={simple_or} alt="OR Gate"/>
                         </div>
 
-                        <div className="flex flex-col items-center gap-2">
-                            <div className="text-lg font-semibold">Input B</div>
-                            <button
-                                onClick={() => setInputB(!inputB)}
-                                className={`w-24 h-24 rounded-lg font-bold text-2xl transition-all ${
-                                    inputB
-                                        ? 'bg-green-500 text-white shadow-lg shadow-green-500/50'
-                                        : 'bg-gray-300 text-gray-600'
-                                }`}>
-                                {inputB ? '1' : '0'}
-                            </button>
-                            <div className="text-sm text-gray-500">Press [2]</div>
-                        </div>
-
-                        <div className="text-5xl text-gray-400">→</div>
-
+                        {/* Output */}
                         <div className="flex flex-col items-center gap-2">
                             <div className="text-lg font-semibold">Output</div>
                             <div
