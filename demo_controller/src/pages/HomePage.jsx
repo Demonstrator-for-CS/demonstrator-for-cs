@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import pittLogo from '@/images/pitt_logo.png'
+import pittLogo from '@/assets/pitt_logo.png'
 import '@/css/App.css'
 
 function HomePage() {
