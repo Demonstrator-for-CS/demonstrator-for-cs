@@ -11,7 +11,7 @@ function App() {
     <>
       <div>
         <a href="https://www.pitt.edu/" target="_blank">
-          <img src={pittLogo} className="logo" alt="Vite logo" />
+          <img src={pittLogo} className="logo" alt="Pitt logo" />
         </a>
       </div>
       <h1>Demonstrator Controller (Name subject to change obv)</h1>
