@@ -1,9 +1,8 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import pittLogo from './images/pitt_logo.png'
-import './App.css'
+import pittLogo from '@/images/pitt_logo.png'
+import '@/css/App.css'
 
-function App() {
+function HomePage() {
   const [count, setCount] = useState(0)
   const [background, setBackground] = useState('#ffffff');
 
@@ -33,4 +32,4 @@ function App() {
   )
 }
 
-export default App
+export default HomePage
