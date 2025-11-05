@@ -1,0 +1,42 @@
+<!doctype html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
+    <script type="text/javascript" src="simcir.js"></script>
+    <link rel="stylesheet" type="text/css" href="simcir.css" />
+    <script type="text/javascript" src="simcir-basicset.js"></script>
+    <link rel="stylesheet" type="text/css" href="simcir-basicset.css" />
+    <title>One-Bit Adder</title>
+</head>
+    <body>
+        <div class="simcir">
+            {
+            "width": 1200,
+            "height": 700,
+            "showToolbox": false,
+            "devices": [
+            {"type":"DC", "id":"power", "x":80, "y":300, "label":"Power"},
+            {"type": "Toggle", "id": "inpA", "x": 200, "y": 250, "label": "A","state":{"on":true}},
+            {"type": "Toggle", "id": "inpB", "x": 200, "y": 400, "label": "B"},
+            {"type": "XOR", "id": "xorGate", "x": 480, "y": 280, "label": "XOR"},
+            {"type": "AND", "id": "andGate", "x": 480, "y": 400, "label": "AND"},
+            {"type": "LED", "id": "sumLight", "x": 840, "y": 280, "label": "Sum"},
+            {"type": "LED", "id": "carryLight", "x": 840, "y": 400, "label": "Carry"},
+            {"type":"4bit7seg","id":"display","x":840,"y":100,"label":"4bit7seg"}
+            ],
+            "connectors": [
+            {"from": "inpA.out0", "to": "xorGate.in0"},
+            {"from": "inpA.out0", "to": "andGate.in0"},
+            {"from": "inpB.out0", "to": "xorGate.in1"},
+            {"from": "inpB.out0", "to": "andGate.in1"},
+            {"from": "xorGate.out0", "to": "sumLight.in0"},
+            {"from": "andGate.out0", "to": "carryLight.in0"},
+            {"from": "xorGate.out0", "to": "display.in0"},
+            {"from": "andGate.out0", "to": "display.in1"},
+            {"from":"inpA.in0", "to":"power.out0"},
+            {"from":"inpB.in0", "to":"power.out0"}
+            ]
+            }
+        </div>
+    </body>
+</html>
