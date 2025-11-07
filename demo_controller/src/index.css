@@ -7,7 +7,7 @@
 
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  background-color: white;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -32,9 +32,11 @@ body {
   min-height: 100vh;
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+h3 {
+  margin: 0;
+  font-weight: 600;
+  font-size: 1.2em;
+  color: rgb(0, 119, 255);
 }
 
 button {
@@ -66,5 +68,69 @@ button:focus-visible {
   }
   button {
     background-color: #f9f9f9;
+  }
+}
+
+
+#left {
+  margin-right: 20px;
+  background-color: red;
+  color:white;
+}
+#right {
+  background-color: rgb(2, 230, 51);
+  color:white;
+}
+#home_button {
+  margin-top: 20px;
+  background-color: grey;
+  color: white;
+}
+
+#num-pad-title {
+  margin-top: 1rem;
+  font-size: 1.2rem;
+  color: rgb(0, 119, 255);
+}
+
+.num-pad-container {
+  display: grid;
+  grid-template-columns: repeat(3, auto);
+  justify-content: center;
+  gap: 10px;
+  margin-top: 1rem;
+}
+
+.num-pad {
+  width: 60px;
+  height: 60px;
+  margin: 5px;
+  font-size: 1.5em;
+  background-color: rgb(0, 119, 255);
+  color: white;
+}
+
+.card {
+  margin-top: 1rem;
+  padding: 1.5rem;
+  text-align: center;
+  background-color: rgba(255, 255, 255);
+  border-radius: 1rem;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+#instructions {
+  color: rgb(0, 119, 255);
+  font: sans-serif;
+  margin-top: 1.5rem;
+}
+
+@media screen and (max-width: 600px) {
+  #root {
+    padding: 1rem;
+  }
+  #logo {
+    height: 4em;
+    padding: 1em;
   }
 }
