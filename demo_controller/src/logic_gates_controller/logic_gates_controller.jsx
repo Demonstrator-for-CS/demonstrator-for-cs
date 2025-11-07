@@ -23,13 +23,6 @@ function App() {
         <div className="num-pad-container" style = {{marginTop: '20px'}}>
           <button className = 'num-pad'>1</button>
           <button className = 'num-pad'>2</button>
-          <button className = 'num-pad'>3</button>
-          <button className = 'num-pad'>4</button>
-          <button className = 'num-pad'>5</button>
-          <button className = 'num-pad'>6</button>
-          <button className = 'num-pad'>7</button>
-          <button className = 'num-pad'>8</button>
-          <button className = 'num-pad'>9</button>
         </div>
         <div className="home" style = {{marginTop: '20px'}}>
           <button onClick={() => setCount((count) => count + 1)} id='home_button'>

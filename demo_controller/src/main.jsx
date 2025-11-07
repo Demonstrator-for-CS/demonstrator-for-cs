@@ -10,8 +10,7 @@ createRoot(document.getElementById('root')).render(
     <BrowserRouter>
         {/*  Wondering how to add routes? Visit https://reactrouter.com/start/declarative/routing  */}
         <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/logic_gates" element={<LogicGates />} />
+            <Route path="/" element={<LogicGates />} />
         </Routes>
     </BrowserRouter>,
 )
