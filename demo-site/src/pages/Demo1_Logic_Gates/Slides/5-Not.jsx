@@ -21,10 +21,10 @@ export default function NotGate() {
 
     return (
         <div className="flex flex-col items-center justify-center h-full px-8">
-            <h2 className="text-5xl font-bold mb-8 text-red-600">NOT Gate</h2>
+            <h2 className="text-9xl font-bold mb-8 text-red-600">NOT Gate</h2>
 
             <div className="bg-white p-8 rounded-lg shadow-lg max-w-6xl w-full animate-fade-in opacity-0" style={{ animationDelay: '0.5s', animationFillMode: 'forwards' }}>
-                <p className="text-xl mb-8 text-gray-700 text-center">
+                <p className="text-3xl mb-8 text-gray-700 text-center">
                     The NOT gate <span className="font-bold">inverts</span> the input. It has only one input.
                 </p>
 
@@ -33,17 +33,16 @@ export default function NotGate() {
                     <div className="flex-1 flex items-center justify-center gap-8">
                         {/* Input */}
                         <div className="flex flex-col items-center gap-2">
-                            <div className="text-lg font-semibold">Input</div>
+                            <div className="text-2xl font-semibold">Input</div>
                             <button
                                 onClick={() => setInput(!input)}
-                                className={`w-24 h-24 rounded-lg font-bold text-2xl transition-all ${
+                                className={`w-24 h-24 rounded-lg font-bold text-6xl transition-all ${
                                     input
                                         ? 'bg-green-500 text-white shadow-lg shadow-green-500/50'
                                         : 'bg-gray-300 text-gray-600'
                                 }`}>
                                 {input ? '1' : '0'}
                             </button>
-                            <div className="text-sm text-gray-500">Press [1]</div>
                         </div>
 
                         {/* NOT Gate Symbol */}
@@ -53,9 +52,9 @@ export default function NotGate() {
 
                         {/* Output */}
                         <div className="flex flex-col items-center gap-2">
-                            <div className="text-lg font-semibold">Output</div>
+                            <div className="text-2xl font-semibold">Output</div>
                             <div
-                                className={`w-24 h-24 rounded-lg font-bold text-2xl flex items-center justify-center transition-all ${
+                                className={`w-24 h-24 rounded-lg font-bold text-6xl flex items-center justify-center transition-all ${
                                     output
                                         ? 'bg-green-500 text-white shadow-lg shadow-green-500/50'
                                         : 'bg-gray-300 text-gray-600'
@@ -70,16 +69,16 @@ export default function NotGate() {
 
                     {/* Truth Table */}
                     <div className="flex-1">
-                        <h3 className="text-2xl font-bold mb-6 text-center">Truth Table</h3>
+                        <h3 className="text-4xl font-bold mb-6 text-center">Truth Table</h3>
                         <div className="grid grid-cols-2 gap-3 text-center font-mono text-lg max-w-sm mx-auto">
-                            <div className="font-bold text-xl">Input</div>
-                            <div className="font-bold text-xl">Output</div>
+                            <div className="font-bold text-3xl">Input</div>
+                            <div className="font-bold text-3xl">Output</div>
 
-                            <div className={`p-4 rounded ${!input ? 'bg-red-200 ring-2 ring-red-500' : 'bg-red-100'}`}>0</div>
-                            <div className={`p-4 rounded ${!input ? 'bg-red-200 ring-2 ring-red-500' : 'bg-green-100'}`}>1</div>
+                            <div className={`p-2 rounded text-5xl ${!input ? 'bg-red-200 ring-2 ring-red-500' : 'bg-red-100'}`}>0</div>
+                            <div className={`p-2 rounded text-5xl ${!input ? 'bg-red-200 ring-2 ring-red-500' : 'bg-green-100'}`}>1</div>
 
-                            <div className={`p-4 rounded ${input ? 'bg-red-200 ring-2 ring-red-500' : 'bg-green-100'}`}>1</div>
-                            <div className={`p-4 rounded ${input ? 'bg-red-200 ring-2 ring-red-500' : 'bg-red-100'}`}>0</div>
+                            <div className={`p-2 rounded text-5xl ${input ? 'bg-red-200 ring-2 ring-red-500' : 'bg-green-100'}`}>1</div>
+                            <div className={`p-2 rounded text-5xl ${input ? 'bg-red-200 ring-2 ring-red-500' : 'bg-red-100'}`}>0</div>
                         </div>
                     </div>
                 </div>
