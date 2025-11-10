@@ -9,9 +9,9 @@ export const demoCatalog = [
     },
     {
         id: "demo2",
-        title: "Demo 2",
+        title: "Searching and Sorting",
         status: "available",
-        path: "/logic-gates",
+        path: "/searching-sorting",
     },
     {
         id: "demo3",
