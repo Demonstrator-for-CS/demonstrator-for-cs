@@ -5,10 +5,10 @@ export default function AndGate() {
     const [inputA, setInputA] = useState(false);
     const [inputB, setInputB] = useState(false);
 
-    // Calculate output: AND gate is true when both inputs are true
+    // Output Calculation
     const output = inputA && inputB;
 
-    // Handle keyboard inputs
+    // keyboard inputs (TEMPORARY)
     useEffect(() => {
         const handleKeyPress = (e) => {
             if (e.key === '1') {

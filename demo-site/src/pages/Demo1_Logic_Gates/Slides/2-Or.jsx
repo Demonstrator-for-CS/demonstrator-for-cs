@@ -6,10 +6,10 @@ export default function OrGate() {
     const [inputA, setInputA] = useState(false);
     const [inputB, setInputB] = useState(false);
 
-    // Calculate output: OR gate is true when at least one input is true
+    // Ouput calculation
     const output = inputA || inputB;
 
-    // Handle keyboard inputs
+    // keyboard inputs (TEMPORARY)
     useEffect(() => {
         const handleKeyPress = (e) => {
             if (e.key === '1') {

@@ -4,10 +4,10 @@ import simple_not from "../Images/simple_not.png"
 export default function NotGate() {
     const [input, setInput] = useState(false);
 
-    // Calculate output: NOT gate inverts the input
+    // Output Calculation
     const output = !input;
 
-    // Handle keyboard input
+    // keyboard inputs (TEMPORARY)
     useEffect(() => {
         const handleKeyPress = (e) => {
             if (e.key === '1') {

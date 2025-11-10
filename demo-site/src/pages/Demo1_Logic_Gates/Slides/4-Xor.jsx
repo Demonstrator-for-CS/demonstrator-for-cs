@@ -5,10 +5,10 @@ export default function XorGate() {
     const [inputA, setInputA] = useState(false);
     const [inputB, setInputB] = useState(false);
 
-    // Calculate output: XOR gate is true when inputs are different
+    // Output Calculation
     const output = inputA !== inputB;
 
-    // Handle keyboard inputs
+    // keyboard inputs (TEMPORARY)
     useEffect(() => {
         const handleKeyPress = (e) => {
             if (e.key === '1') {
