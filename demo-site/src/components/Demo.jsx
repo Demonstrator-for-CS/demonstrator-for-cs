@@ -72,7 +72,8 @@ export default function Demo({ slides, slideDuration = 10000 }) {
                         <button
                             onClick={goToNext}
                             disabled={currentSlide === slides.length - 1}
-                            className="p-2 rounded-lg hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors">
+                            className="p-2 rounded-lg hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                        >
                             <ChevronRight size={32} />
                         </button>
                     </div>
@@ -81,3 +82,4 @@ export default function Demo({ slides, slideDuration = 10000 }) {
         </div>
     );
 }
+

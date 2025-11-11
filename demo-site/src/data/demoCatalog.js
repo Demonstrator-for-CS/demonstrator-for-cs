@@ -9,7 +9,7 @@ export const demoCatalog = [
     },
     {
         id: "demo2",
-        title: "Searching and Sorting",
+        title: "Searching and Sorting Algorism",
         status: "available",
         path: "/searching-sorting",
     },
@@ -24,3 +24,4 @@ export const demoCatalog = [
 export function getDemoById(id) {
     return demoCatalog.find((demo) => demo.id === id);
 }
+
