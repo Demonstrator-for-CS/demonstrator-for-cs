@@ -1,9 +1,9 @@
 import {ReactFlow, Position, Handle} from '@xyflow/react';
-import TreeNodeIntro from '../Styles/TreeNodeIntro.jsx';
+import TreeNode from '../Styles/TreeNode.jsx';
 
 
 const nodeTypes = {
-    treeNode: TreeNodeIntro,
+    treeNode: TreeNode,
 };
 
 const nodes = [
@@ -52,23 +52,31 @@ const nodes = [
 ];
 
 const edges = [
-    { id: '7->2', source: '7', target: '2', type: 'straight', style: { stroke: '#dc2626', strokeWidth: 2 } },
-    { id: '7->3', source: '7', target: '3', type: 'straight', style: { stroke: '#dc2626', strokeWidth: 2 } },
-    { id: '2->5', source: '2', target: '5', type: 'straight', style: { stroke: '#dc2626', strokeWidth: 2 } },
-    { id: '2->4', source: '2', target: '4', type: 'straight', style: { stroke: '#dc2626', strokeWidth: 2 } },
-    { id: '3->6', source: '3', target: '6', type: 'straight', style: { stroke: '#dc2626', strokeWidth: 2 } },
-    { id: '3->1', source: '3', target: '1', type: 'straight', style: { stroke: '#dc2626', strokeWidth: 2 } },
+    { id: '7->2', source: '7', target: '2', type: 'straight', style: { stroke: '#000000', strokeWidth: 2 } },
+    { id: '7->3', source: '7', target: '3', type: 'straight', style: { stroke: '#000000', strokeWidth: 2 } },
+    { id: '2->5', source: '2', target: '5', type: 'straight', style: { stroke: '#000000', strokeWidth: 2 } },
+    { id: '2->4', source: '2', target: '4', type: 'straight', style: { stroke: '#000000', strokeWidth: 2 } },
+    { id: '3->6', source: '3', target: '6', type: 'straight', style: { stroke: '#000000', strokeWidth: 2 } },
+    { id: '3->1', source: '3', target: '1', type: 'straight', style: { stroke: '#000000', strokeWidth: 2 } },
 ];
 
 export default function Trees() {
     return (
         <div className="flex flex-col items-center justify-center h-full text-center px-8">
-            <h2 className="text-9xl font-bold mb-6 mt-1">Trees</h2>
-            <div className="grid grid-cols-2 items-center justify-between px-4 h-full w-full">
-                <p className="text-3xl w-1/2">
-                    Trees are a data structure made up of <span className="text-blue-600 font-bold">nodes </span>
-                    that contain <span className="">data</span>, and <span className="text-red-600 font-bold">edges</span> that link the data together.
-                </p>
+            <div className="grid grid-cols-2 items-center justify-center px-4 h-full w-full">
+                <div className="flex flex-col items-center gap-4 w-1/2">
+                    <p className="text-3xl">
+                        <span className="font-bold">Breadth-First Search (BFS)</span> is one method of searching for data in a tree.
+                    </p>
+                    <p className="text-3xl">
+                        <span className="font-bold">BFS</span> looks at each node on a level of a tree before moving to the next level
+                    </p>
+                    <p className="text-3xl">
+                        Lets try to find the node with the data <span className="font-bold">1</span>
+                    </p>
+                </div>
+
+
                 <div className="w-full h-full">
                     <ReactFlow
                         nodes={nodes}

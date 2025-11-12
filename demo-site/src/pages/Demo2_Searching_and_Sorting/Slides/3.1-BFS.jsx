@@ -1,15 +1,19 @@
 import {ReactFlow, Position, Handle} from '@xyflow/react';
-import TreeNodeIntro from '../Styles/TreeNodeIntro.jsx';
+import TreeNode from '../Styles/TreeNode.jsx';
+import SelectedNode from '../Styles/SelectedNode.jsx';
+import VisistedNode from '../Styles/VisitedNode.jsx';
 
 
 const nodeTypes = {
-    treeNode: TreeNodeIntro,
+    treeNode: TreeNode,
+    selectedNode: SelectedNode,
+    visitedNode: VisistedNode,
 };
 
 const nodes = [
     {
         id: '7',
-        type: 'treeNode',
+        type: 'selectedNode',
         position: { x: 250, y: 0 },
         data: { label: '7' },
     },
@@ -52,23 +56,29 @@ const nodes = [
 ];
 
 const edges = [
-    { id: '7->2', source: '7', target: '2', type: 'straight', style: { stroke: '#dc2626', strokeWidth: 2 } },
-    { id: '7->3', source: '7', target: '3', type: 'straight', style: { stroke: '#dc2626', strokeWidth: 2 } },
-    { id: '2->5', source: '2', target: '5', type: 'straight', style: { stroke: '#dc2626', strokeWidth: 2 } },
-    { id: '2->4', source: '2', target: '4', type: 'straight', style: { stroke: '#dc2626', strokeWidth: 2 } },
-    { id: '3->6', source: '3', target: '6', type: 'straight', style: { stroke: '#dc2626', strokeWidth: 2 } },
-    { id: '3->1', source: '3', target: '1', type: 'straight', style: { stroke: '#dc2626', strokeWidth: 2 } },
+    { id: '7->2', source: '7', target: '2', type: 'straight', style: { stroke: '#000000', strokeWidth: 2 } },
+    { id: '7->3', source: '7', target: '3', type: 'straight', style: { stroke: '#000000', strokeWidth: 2 } },
+    { id: '2->5', source: '2', target: '5', type: 'straight', style: { stroke: '#000000', strokeWidth: 2 } },
+    { id: '2->4', source: '2', target: '4', type: 'straight', style: { stroke: '#000000', strokeWidth: 2 } },
+    { id: '3->6', source: '3', target: '6', type: 'straight', style: { stroke: '#000000', strokeWidth: 2 } },
+    { id: '3->1', source: '3', target: '1', type: 'straight', style: { stroke: '#000000', strokeWidth: 2 } },
 ];
 
 export default function Trees() {
     return (
         <div className="flex flex-col items-center justify-center h-full text-center px-8">
-            <h2 className="text-9xl font-bold mb-6 mt-1">Trees</h2>
-            <div className="grid grid-cols-2 items-center justify-between px-4 h-full w-full">
-                <p className="text-3xl w-1/2">
-                    Trees are a data structure made up of <span className="text-blue-600 font-bold">nodes </span>
-                    that contain <span className="">data</span>, and <span className="text-red-600 font-bold">edges</span> that link the data together.
-                </p>
+            <div className="grid grid-cols-2 items-center justify-center px-4 h-full w-full">
+                <div className="flex flex-col items-center gap-4 w-1/2 min-w-1/2">
+                    <p className="text-3xl">
+                        The algorithm first looks at 7, the <span className="font-bold">root node</span>
+                    </p>
+                    <p className="text-3xl">
+                        It see's the data there is 7 which is not <span className="font-bold">1</span>
+                    </p>
+                    <p className="text-3xl">
+                        Moving onto the next node...
+                    </p>
+                </div>
                 <div className="w-full h-full">
                     <ReactFlow
                         nodes={nodes}
@@ -82,7 +92,6 @@ export default function Trees() {
                     />
                 </div>
             </div>
-
         </div>
     );
 }
