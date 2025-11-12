@@ -9,7 +9,7 @@ export const demoCatalog = [
     },
     {
         id: "demo2",
-        title: "Searching and Sorting Algorism",
+        title: "Searching and Sorting",
         status: "available",
         path: "/searching-sorting",
     },
