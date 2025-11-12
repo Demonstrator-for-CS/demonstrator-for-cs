@@ -54,7 +54,7 @@ export default function HomePage() {
                     CS Demonstrator
                 </h1>
                 <p className="text-base text-slate-400">
-                    Tap a card to focus, tap again to launch the logic gates demo.
+                    Tap a card to focus, tap again to launch that selected demo.
                 </p>
             </header>
 

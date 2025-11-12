@@ -2,19 +2,20 @@ import React from "react";
 import Demo from "@/components/Demo.jsx";
 
 export default function SearchingSorting() {
-    // Dynamically import all slide files
     const slideModules = import.meta.glob('./Slides/*.jsx', { eager: true });
 
-    // Convert to slides array and sort by filename
     const slides = Object.entries(slideModules)
-        .sort(([pathA], [pathB]) => pathA.localeCompare(pathB))
-        .map(([path, module], index) => {
+        .map(([path, module]) => {
             const fileName = path.split('/').pop().replace('.jsx', '');
+            const orderMatch = fileName.match(/^\d+/);
+            const order = orderMatch ? Number(orderMatch[0]) : 0;
             return {
                 id: fileName,
-                component: module.default
+                order,
+                component: module.default,
             };
-        });
+        })
+        .sort((a, b) => (a.order - b.order) || a.id.localeCompare(b.id));
 
     return <Demo slides={slides} slideDuration={10000} />;
 }

@@ -24,3 +24,4 @@ export const demoCatalog = [
 export function getDemoById(id) {
     return demoCatalog.find((demo) => demo.id === id);
 }
+
