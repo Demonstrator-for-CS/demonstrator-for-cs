@@ -5,6 +5,7 @@ import { Pause, Play, RotateCcw } from "lucide-react";
 const INITIAL_VALUES = [5, 4, 3, 2, 1];
 const DEFAULT_INTERVAL = 1400;
 const PHASE_PORTION = 0.45;
+const CARD_SWAP_OFFSET = 140;
 
 export default function BubbleSortVisualizer() {
   const [values, setValues] = useState(INITIAL_VALUES);
@@ -12,6 +13,7 @@ export default function BubbleSortVisualizer() {
   const [isRunning, setIsRunning] = useState(false);
   const [speed, setSpeed] = useState(DEFAULT_INTERVAL);
   const [completed, setCompleted] = useState(false);
+  const [swapOffsets, setSwapOffsets] = useState({});
 
   const steps = useMemo(() => generateBubbleSteps(INITIAL_VALUES), []);
   const timersRef = useRef([]);
@@ -36,6 +38,7 @@ export default function BubbleSortVisualizer() {
     setStepIndex(0);
     setIsRunning(false);
     setCompleted(false);
+    setSwapOffsets({});
     swapStateRef.current = { stepIndex: -1, performed: false };
   }, [clearTimers]);
 
@@ -53,9 +56,17 @@ export default function BubbleSortVisualizer() {
     const step = steps[stepIndex];
     const midPoint = speed * PHASE_PORTION;
 
+    if (step.type !== "swap") {
+      setSwapOffsets((prev) => (Object.keys(prev).length ? {} : prev));
+    }
+
     if (step.type === "swap") {
       if (swapStateRef.current.stepIndex !== stepIndex) {
         swapStateRef.current = { stepIndex, performed: false };
+        setSwapOffsets({
+          [step.i]: CARD_SWAP_OFFSET,
+          [step.j]: -CARD_SWAP_OFFSET,
+        });
       }
 
       const swapHandle = setTimeout(() => {
@@ -73,6 +84,7 @@ export default function BubbleSortVisualizer() {
           const next = [...prev];
           [next[i], next[j]] = [next[j], next[i]];
           swapStateRef.current.performed = true;
+          setSwapOffsets({});
           return next;
         });
       }, midPoint);
@@ -122,6 +134,8 @@ export default function BubbleSortVisualizer() {
             else if (isDrop || isSettle) elevation = -16;
             else if (isActive) elevation = -10;
 
+            const horizontalOffset = swapOffsets[index] ?? 0;
+
             const scale = isActive ? (isLift || isGlide ? 1.18 : 1.08) : 1;
             const glow = isLift || isGlide
               ? "0px 0px 55px rgba(56,189,248,0.55)"
@@ -144,9 +158,11 @@ export default function BubbleSortVisualizer() {
                 transition={{
                   layout: { type: "spring", stiffness: 380, damping: 30 },
                   y: { type: "spring", stiffness: 320, damping: 24 },
+                  x: { type: "spring", stiffness: 220, damping: 26 },
                 }}
                 animate={{
                   y: elevation,
+                  x: horizontalOffset,
                   scale,
                   boxShadow: glow,
                 }}
@@ -237,7 +253,7 @@ function statusMessage(step, values) {
     case "lift":
       return `Lifting ${left} and ${right}`;
     case "swap":
-      return `Gliding ${left} ? ${right}`;
+      return `Swapping ${left} ? ${right}`;
     case "drop":
       return "Dropping into place";
     case "settle":

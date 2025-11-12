@@ -4,6 +4,8 @@ import { Pause, Play, RotateCcw } from "lucide-react";
 
 const DEFAULT_INTERVAL = 1400;
 const PHASE_PORTION = 0.55;
+const CARD_TRAVEL = 96;
+const STAGE_LIFT = -140;
 
 export default function MergeSortVisualizer() {
   const [baseNumbers, setBaseNumbers] = useState(() => generateRandomNumbers());
@@ -14,6 +16,9 @@ export default function MergeSortVisualizer() {
   const [isRunning, setIsRunning] = useState(false);
   const [speed, setSpeed] = useState(DEFAULT_INTERVAL);
   const [completed, setCompleted] = useState(false);
+  const [stageOffsets, setStageOffsets] = useState({});
+  const [writeOffsets, setWriteOffsets] = useState({});
+  const [narration, setNarration] = useState("Tap start to watch merge sort unfold");
 
   const timersRef = useRef([]);
 
@@ -44,6 +49,9 @@ export default function MergeSortVisualizer() {
     setStepIndex(0);
     setIsRunning(false);
     setCompleted(false);
+    setStageOffsets({});
+    setWriteOffsets({});
+    setNarration("Tap start to watch merge sort unfold");
   }, [dataset, clearTimers]);
 
   const resetVisualizer = useCallback(() => {
@@ -53,6 +61,9 @@ export default function MergeSortVisualizer() {
     setIsRunning(false);
     setCompleted(false);
     setValues([...dataset]);
+    setStageOffsets({});
+    setWriteOffsets({});
+    setNarration("Tap start to watch merge sort unfold");
   }, [clearTimers, dataset]);
 
   const startRun = useCallback(() => {
@@ -76,6 +87,7 @@ export default function MergeSortVisualizer() {
       if (isRunning && stepIndex >= operations.length && operations.length) {
         setCompleted(true);
         setIsRunning(false);
+        setNarration("Sorted! Merge sort finished");
       }
       return;
     }
@@ -83,11 +95,44 @@ export default function MergeSortVisualizer() {
     const op = operations[stepIndex];
     const duration = op.type === "write" ? speed : speed * PHASE_PORTION;
 
+    if (op.type === "compare") {
+      const [leftIdx, rightIdx] = op.indices;
+      setStageOffsets({
+        [leftIdx]: { x: -60, y: STAGE_LIFT },
+        [rightIdx]: { x: 60, y: STAGE_LIFT },
+      });
+      setNarration(`Compare ${op.leftValue} vs ${op.rightValue}. Choose the smaller for the next slot.`);
+    } else {
+      setStageOffsets({});
+    }
+
+    if (op.type === "write") {
+      const source = typeof op.source === "number" ? op.source : op.index;
+      setNarration(`Moving ${op.value} into slot ${op.index + 1}.`);
+      setValues((prev) => {
+        const next = [...prev];
+        next[op.index] = op.value;
+        return next;
+      });
+      setWriteOffsets((prev) => ({
+        ...prev,
+        [op.index]: {
+          x: (source - op.index) * CARD_TRAVEL,
+          y: STAGE_LIFT,
+        },
+      }));
+    }
+
+    if (op.type === "complete") {
+      setNarration("Sorted! Merge sort finished");
+    }
+
     const handle = setTimeout(() => {
       if (op.type === "write") {
-        setValues((prev) => {
-          const next = [...prev];
-          next[op.index] = op.value;
+        setWriteOffsets((prev) => {
+          if (!(op.index in prev)) return prev;
+          const next = { ...prev };
+          delete next[op.index];
           return next;
         });
       }
@@ -97,7 +142,7 @@ export default function MergeSortVisualizer() {
     scheduleTimer(handle);
 
     return () => clearTimers();
-  }, [isRunning, stepIndex, operations, speed, scheduleTimer, clearTimers]);
+  }, [isRunning, stepIndex, operations, speed, clearTimers, scheduleTimer]);
 
   const handleToggle = () => {
     if (completed || operations.length === 0) {
@@ -185,11 +230,19 @@ export default function MergeSortVisualizer() {
             </h3>
           </header>
 
+          <div className="rounded-3xl border border-slate-200 bg-slate-50/70 px-6 py-4 text-center text-sm text-slate-600 shadow-inner">
+            {narration}
+          </div>
+
           <div className="flex flex-wrap items-end justify-center gap-6 sm:gap-8">
             {values.map((value, index) => {
               const isCompare = activePair.includes(index);
               const isWrite = writingIndex === index;
-              const elevation = isWrite ? -90 : isCompare ? -60 : 0;
+              const baseElevation = isWrite ? -30 : isCompare ? -20 : 0;
+              const stage = stageOffsets[index] || { x: 0, y: 0 };
+              const travel = writeOffsets[index] || { x: 0, y: 0 };
+              const finalY = baseElevation + stage.y + travel.y;
+              const finalX = stage.x + travel.x;
               const scale = isCompare || isWrite ? 1.12 : 1;
               const glow = isWrite
                 ? "0px 0px 55px rgba(14,165,233,0.45)"
@@ -202,12 +255,13 @@ export default function MergeSortVisualizer() {
               return (
                 <motion.div
                   layout
-                  key={`${value}-${index}`}
+                  key={`${index}-${value}`}
                   transition={{
                     layout: { type: "spring", stiffness: 380, damping: 30 },
                     y: { type: "spring", stiffness: 320, damping: 24 },
+                    x: { type: "spring", stiffness: 280, damping: 28 },
                   }}
-                  animate={{ y: elevation, scale, boxShadow: glow }}
+                  animate={{ y: finalY, x: finalX, scale, boxShadow: glow }}
                   className={`flex h-32 w-20 items-center justify-center rounded-[2.25rem] border-4 text-4xl font-black tracking-wide ${
                     isCompare || isWrite
                       ? "border-sky-400 bg-sky-50 text-slate-900"
@@ -218,10 +272,6 @@ export default function MergeSortVisualizer() {
                 </motion.div>
               );
             })}
-          </div>
-
-          <div className="min-h-[1.5rem] text-center text-xs font-semibold uppercase tracking-[0.4em] text-slate-500">
-            {statusMessage(currentOp, values, completed)}
           </div>
 
           <div className="flex flex-wrap items-center justify-center gap-4">
@@ -282,21 +332,21 @@ function generateMergeOperations(numbers) {
 
     for (let k = lo; k <= hi; k += 1) {
       if (i > mid) {
-        ops.push({ type: "write", index: k, value: aux[j] });
+        ops.push({ type: "write", index: k, value: aux[j], source: j });
         arr[k] = aux[j];
         j += 1;
       } else if (j > hi) {
-        ops.push({ type: "write", index: k, value: aux[i] });
+        ops.push({ type: "write", index: k, value: aux[i], source: i });
         arr[k] = aux[i];
         i += 1;
       } else {
-        ops.push({ type: "compare", indices: [i, j] });
+        ops.push({ type: "compare", indices: [i, j], leftValue: aux[i], rightValue: aux[j] });
         if (aux[i] <= aux[j]) {
-          ops.push({ type: "write", index: k, value: aux[i] });
+          ops.push({ type: "write", index: k, value: aux[i], source: i });
           arr[k] = aux[i];
           i += 1;
         } else {
-          ops.push({ type: "write", index: k, value: aux[j] });
+          ops.push({ type: "write", index: k, value: aux[j], source: j });
           arr[k] = aux[j];
           j += 1;
         }
@@ -312,26 +362,3 @@ function generateMergeOperations(numbers) {
 function generateRandomNumbers() {
   return Array.from({ length: 10 }, () => Math.floor(Math.random() * 90) + 10);
 }
-
-function statusMessage(op, values, isFinished = false) {
-  if (isFinished) {
-    return "Sorted! Merge sort finished";
-  }
-  if (!op) {
-    return "Tap start to watch merge sort unfold";
-  }
-  if (op.type === "compare") {
-    const [left, right] = op.indices;
-    const leftVal = left >= 0 ? values[left] ?? "?" : "";
-    const rightVal = right >= 0 ? values[right] ?? "?" : "";
-    return `Comparing ${leftVal} and ${rightVal}`;
-  }
-  if (op.type === "write") {
-    return `Placing ${op.value} into position ${op.index + 1}`;
-  }
-  if (op.type === "complete") {
-    return "Sorted! Merge sort finished";
-  }
-  return "";
-}
-
