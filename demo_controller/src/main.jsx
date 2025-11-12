@@ -1,10 +1,16 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
+import {BrowserRouter, Routes, Route} from "react-router";
 import './index.css'
-import App from './App.jsx'
+import HomePage from './home_page_controller/home_page_controller.jsx'
+import LogicGates from './logic_gates_controller/logic_gates_controller.jsx'
 
 createRoot(document.getElementById('root')).render(
-  <StrictMode>
-    <App />
-  </StrictMode>,
+
+    <BrowserRouter>
+        {/*  Wondering how to add routes? Visit https://reactrouter.com/start/declarative/routing  */}
+        <Routes>
+            <Route path="/" element={<LogicGates />} />
+        </Routes>
+    </BrowserRouter>,
 )
