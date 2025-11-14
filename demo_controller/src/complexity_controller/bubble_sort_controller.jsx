@@ -9,7 +9,7 @@ function App() {
     <>
       <div>
       </div>
-      <h3>Logic Gates</h3>
+      <h3>Searching and Sorting</h3>
       <div className="card">
         <div className="directions"> 
           <button onClick={() => setCount((count) => count + 1)} id='left'>
@@ -20,10 +20,11 @@ function App() {
           </button>
         </div>
         <p id = 'num-pad-title'>Controls</p>
-        <div className="num-pad-container" style = {{marginTop: '20px'}}>
-          <button className = 'num-pad'>A</button>
-          <button className = 'num-pad'>B</button>
+        <div className='play-restart-container'>
+          <button id='play-button'>▶</button>
+          <button id='restart-button'>⟲</button>
         </div>
+
         <div className="home" style = {{marginTop: '20px'}}>
           <button onClick={() => setCount((count) => count + 1)} id='home_button'>
             &#127968;

@@ -86,6 +86,12 @@ button:focus-visible {
   background-color: grey;
   color: white;
 }
+#pause_button {
+  margin-top: 20px;
+  margin-left: 10px;
+  background-color: grey;
+  color: white;
+}
 
 #num-pad-title {
   margin-top: 1rem;
@@ -123,6 +129,42 @@ button:focus-visible {
   color: rgb(0, 119, 255);
   font: sans-serif;
   margin-top: 1.5rem;
+}
+
+.options-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.options-complexity-buttons {
+  justify-content: center;
+  text-align: center;
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background-color: rgb(0, 119, 255);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+}
+
+.play-restart-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+#play-button, #restart-button {
+  background-color: rgb(0, 119, 255);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
 }
 
 @media screen and (max-width: 600px) {
