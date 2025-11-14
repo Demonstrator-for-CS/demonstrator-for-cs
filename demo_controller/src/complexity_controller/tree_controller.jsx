@@ -1,9 +1,15 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import '@/css/App.css'
+import { navigate, pause, setDemo } from '@/services/api'
 
 function App() {
   const [count, setCount] = useState(0)
   const [background, setBackground] = useState('#ffffff');
+
+  // Set demo on mount
+  useEffect(() => {
+    setDemo('searching-sorting');
+  }, []);
 
   return (
     <>
@@ -11,21 +17,21 @@ function App() {
       </div>
       <h3>Searching and Sorting</h3>
       <div className="card">
-        <div className="directions"> 
-          <button onClick={() => setCount((count) => count + 1)} id='left'>
+        <div className="directions">
+          <button onClick={() => navigate('prev')} id='left'>
             ←
           </button>
-          <button onClick={() => setCount((count) => count - 1)} id = "right">
+          <button onClick={() => navigate('next')} id = "right">
             →
           </button>
         </div>
         <div className="home" style = {{marginTop: '20px'}}>
-          <button onClick={() => setCount((count) => count + 1)} id='home_button'>
+          <button onClick={() => navigate('select')} id='home_button'>
             &#127968;
           </button>
-          <button id='pause_button'> || </button>
+          <button onClick={() => pause()} id='pause_button'> || </button>
         </div>
-          
+
       </div>
       <p className="read-the-docs" id = 'instructions'>
         Use these buttons to navigate through the demonstrator!

@@ -8,7 +8,7 @@ export default function LogicGates() {
     // Convert to slides array and sort by filename
     const slides = Object.entries(slideModules)
         .sort(([pathA], [pathB]) => pathA.localeCompare(pathB))
-        .map(([path, module], index) => {
+        .map(([path, module]) => {
             const fileName = path.split('/').pop().replace('.jsx', '');
             return {
                 id: fileName,

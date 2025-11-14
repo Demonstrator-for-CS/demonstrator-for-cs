@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 
-const BACKEND = import.meta.env.VITE_BACKEND_URL || window.location.origin;
+// Demo site always runs locally, so hardcode localhost
+const BACKEND = 'http://localhost:5000';
 
 export default function Controls({ demoId }) {
   const [speed, setSpeed] = useState(60);
