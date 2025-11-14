@@ -1,9 +1,23 @@
 import { useState, useEffect } from 'react';
 import { Play, Pause, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useServerState } from '@/hooks/useServerState';
 
 export default function Demo({ slides, slideDuration = 10000 }) {
     const [currentSlide, setCurrentSlide] = useState(0);
     const [isPaused, setIsPaused] = useState(false);
+    const { state, isConnected } = useServerState();
+
+    // Sync with server state
+    useEffect(() => {
+        if (state.current_slide !== undefined) {
+            setCurrentSlide(state.current_slide);
+        }
+        if (state.status === 'playing') {
+            setIsPaused(false);
+        } else if (state.status === 'paused') {
+            setIsPaused(true);
+        }
+    }, [state.current_slide, state.status]);
 
     useEffect(() => {
         if (isPaused || currentSlide >= slides.length - 1) return;
