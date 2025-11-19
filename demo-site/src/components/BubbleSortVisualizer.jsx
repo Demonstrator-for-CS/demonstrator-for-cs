@@ -3,15 +3,14 @@ import { motion } from "framer-motion";
 import { Pause, Play, RotateCcw } from "lucide-react";
 
 const INITIAL_VALUES = [5, 4, 3, 2, 1];
-const DEFAULT_INTERVAL = 1400;
+const STEP_DURATION = 1200;
 const PHASE_PORTION = 0.45;
 const CARD_SWAP_OFFSET = 140;
 
 export default function BubbleSortVisualizer() {
-  const [values, setValues] = useState(INITIAL_VALUES);
+  const [values, setValues] = useState(() => [...INITIAL_VALUES]);
   const [stepIndex, setStepIndex] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
-  const [speed, setSpeed] = useState(DEFAULT_INTERVAL);
   const [completed, setCompleted] = useState(false);
   const [swapOffsets, setSwapOffsets] = useState({});
 
@@ -34,7 +33,7 @@ export default function BubbleSortVisualizer() {
 
   const reset = useCallback(() => {
     clearTimers();
-    setValues(INITIAL_VALUES);
+    setValues(() => [...INITIAL_VALUES]);
     setStepIndex(0);
     setIsRunning(false);
     setCompleted(false);
@@ -54,7 +53,7 @@ export default function BubbleSortVisualizer() {
     }
 
     const step = steps[stepIndex];
-    const midPoint = speed * PHASE_PORTION;
+    const midPoint = STEP_DURATION * PHASE_PORTION;
 
     if (step.type !== "swap") {
       setSwapOffsets((prev) => (Object.keys(prev).length ? {} : prev));
@@ -93,7 +92,7 @@ export default function BubbleSortVisualizer() {
       const advanceHandle = setTimeout(() => {
         swapStateRef.current = { stepIndex: -1, performed: false };
         setStepIndex((prev) => prev + 1);
-      }, speed);
+      }, STEP_DURATION);
       scheduleTimer(advanceHandle);
 
       return () => clearTimers();
@@ -101,11 +100,11 @@ export default function BubbleSortVisualizer() {
 
     const advanceHandle = setTimeout(() => {
       setStepIndex((prev) => prev + 1);
-    }, speed);
+    }, STEP_DURATION);
     scheduleTimer(advanceHandle);
 
     return () => clearTimers();
-  }, [isRunning, stepIndex, steps, speed, clearTimers, scheduleTimer, completed]);
+  }, [isRunning, stepIndex, steps, clearTimers, scheduleTimer, completed]);
 
   const toggle = () => {
     if (completed) {
@@ -196,18 +195,6 @@ export default function BubbleSortVisualizer() {
             <RotateCcw size={18} />
             Reset
           </button>
-          <label className="flex flex-col items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.4em] text-slate-500">
-            Update speed ({Math.round(speed / 100) / 10}s)
-            <input
-              type="range"
-              min="300"
-              max="2200"
-              step="100"
-              value={speed}
-              onChange={(event) => setSpeed(Number(event.target.value))}
-              className="w-56 accent-sky-500"
-            />
-          </label>
         </div>
       </div>
     </div>
