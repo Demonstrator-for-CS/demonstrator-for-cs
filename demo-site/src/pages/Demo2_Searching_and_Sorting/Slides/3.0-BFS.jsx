@@ -64,14 +64,14 @@ export default function Trees() {
     return (
         <div className="flex flex-col items-center justify-center h-full text-center px-8">
             <div className="grid grid-cols-2 items-center justify-center px-4 h-full w-full">
-                <div className="flex flex-col items-center gap-4 w-1/2">
-                    <p className="text-3xl">
+                <div className="flex flex-col items-center gap-4">
+                    <p className="text-5xl">
                         <span className="font-bold">Breadth-First Search (BFS)</span> is one method of searching for data in a tree.
                     </p>
-                    <p className="text-3xl">
+                    <p className="text-5xl">
                         <span className="font-bold">BFS</span> looks at each node on a level of a tree before moving to the next level
                     </p>
-                    <p className="text-3xl">
+                    <p className="text-5xl">
                         Lets try to find the node with the data <span className="font-bold">1</span>
                     </p>
                 </div>

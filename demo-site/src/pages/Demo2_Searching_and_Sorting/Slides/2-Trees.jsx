@@ -65,7 +65,7 @@ export default function Trees() {
         <div className="flex flex-col items-center justify-center h-full text-center px-8">
             <h2 className="text-9xl font-bold mb-6 mt-1">Trees</h2>
             <div className="grid grid-cols-2 items-center justify-between px-4 h-full w-full">
-                <p className="text-3xl w-1/2">
+                <p className="text-5xl">
                     Trees are a data structure made up of <span className="text-blue-600 font-bold">nodes </span>
                     that contain <span className="">data</span>, and <span className="text-red-600 font-bold">edges</span> that link the data together.
                 </p>
