@@ -20,8 +20,8 @@ export const sendControllerInput = (action, payload = {}) => {
 };
 
 
-export const navigate = (direction) => {
-  sendControllerInput('navigate', { direction });
+export const navigate = (direction, extraPayload = {}) => {
+  sendControllerInput('navigate', { direction, ...extraPayload });
 };
 
 export const play = () => {

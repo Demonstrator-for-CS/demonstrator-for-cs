@@ -4,8 +4,6 @@ import { navigate, pause, sendLogicGatesInput, setDemo } from '@/services/api'
 import { useEffect } from 'react'
 
 function App() {
-  const [count, setCount] = useState(0)
-  const [background, setBackground] = useState('#ffffff');
   const [inputA, setInputA] = useState(false);
   const [inputB, setInputB] = useState(false);
 
