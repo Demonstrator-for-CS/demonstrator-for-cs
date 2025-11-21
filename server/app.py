@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 from flask_socketio import SocketIO, emit
 import logging
+from datetime import datetime
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
@@ -29,6 +30,12 @@ def controller_input():
 
     if action == 'navigate':
         direction = payload.get('direction')
+        # Update controller_input so the frontend can react to navigation
+        demo_state['controller_input'] = {
+            'action': action,
+            'payload': payload,
+            'timestamp': data.get('timestamp')
+        }
         if direction == 'next':
             demo_state['current_slide'] += 1
         elif direction == 'prev':
@@ -92,13 +99,28 @@ def reset_demo():
 
 @socketio.on('connect')
 def handle_connect():
-    logger.info('Client connected')
+    timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    logger.info(f'Client connected at {timestamp}')
+
+    # Log connection to file
+    with open('interactionLog.txt', 'a') as f:
+        f.write(f'Client connected: {timestamp}\n')
+
     emit('state_update', demo_state)
 
 
 @socketio.on('disconnect')
 def handle_disconnect():
-    logger.info('Client disconnected')
+    timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    logger.info(f'Client disconnected at {timestamp}')
+
+    # Log disconnection to file
+    with open('interactionLog.txt', 'a') as f:
+        f.write(f'Client disconnected: {timestamp}\n')
+
+    # TODO: Only send navigate_to_home when controller specifically disconnects
+    # For now, commented out to avoid interfering with normal operation
+    # socketio.emit('navigate_to_home', {'timestamp': timestamp}, namespace='/')
 
 
 @socketio.on('request_state')
@@ -108,6 +130,29 @@ def handle_state_request():
 @app.route('/health', methods=['GET'])
 def health_check():
     return jsonify({'status': 'healthy'})
+
+
+@app.route('/api/interaction-log', methods=['GET'])
+def get_interaction_log():
+    try:
+        with open('interactionLog.txt', 'r') as f:
+            log_contents = f.read()
+
+        # Split into lines and return as array for easier parsing
+        log_lines = [line.strip() for line in log_contents.split('\n') if line.strip()]
+
+        return jsonify({
+            'success': True,
+            'log': log_lines,
+            'raw': log_contents
+        })
+    except FileNotFoundError:
+        return jsonify({
+            'success': True,
+            'log': [],
+            'raw': '',
+            'message': 'No interactions logged yet'
+        })
 
 
 if __name__ == '__main__':

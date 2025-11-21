@@ -1,23 +1,28 @@
 import { useState, useEffect } from 'react';
 import simple_not from "../Images/simple_not.png"
 
-export default function NotGate() {
-    const [input, setInput] = useState(false);
+export default function NotGate({ controllerInputA }) {
+    const [localInput, setLocalInput] = useState(false);
+
+    // Use controller input A if available, otherwise use local state
+    const input = controllerInputA !== undefined ? controllerInputA : localInput;
 
     // Output Calculation
     const output = !input;
 
-    // keyboard inputs (TEMPORARY)
+    // keyboard inputs (TEMPORARY) - only when controller not connected
     useEffect(() => {
+        if (controllerInputA !== undefined) return;
+
         const handleKeyPress = (e) => {
             if (e.key === '1') {
-                setInput(prev => !prev);
+                setLocalInput(prev => !prev);
             }
         };
 
         window.addEventListener('keydown', handleKeyPress);
         return () => window.removeEventListener('keydown', handleKeyPress);
-    }, []);
+    }, [controllerInputA]);
 
     return (
         <div className="flex flex-col items-center justify-center h-full px-8">
@@ -35,12 +40,13 @@ export default function NotGate() {
                         <div className="flex flex-col items-center gap-2">
                             <div className="text-2xl font-semibold">Input</div>
                             <button
-                                onClick={() => setInput(!input)}
+                                onClick={() => controllerInputA === undefined && setLocalInput(!localInput)}
+                                disabled={controllerInputA !== undefined}
                                 className={`w-24 h-24 rounded-lg font-bold text-6xl transition-all ${
                                     input
                                         ? 'bg-green-500 text-white shadow-lg shadow-green-500/50'
                                         : 'bg-gray-300 text-gray-600'
-                                }`}>
+                                } ${controllerInputA !== undefined ? 'cursor-not-allowed opacity-75' : ''}`}>
                                 {input ? '1' : '0'}
                             </button>
                         </div>

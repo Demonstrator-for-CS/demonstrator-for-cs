@@ -2,26 +2,32 @@ import { useState, useEffect } from 'react';
 import simple_or from "../Images/simple_or.png"
 import Or from "@/pages/Demo1_Logic_Gates/Images/or_gate.png";
 
-export default function OrGate() {
-    const [inputA, setInputA] = useState(false);
-    const [inputB, setInputB] = useState(false);
+export default function OrGate({ controllerInputA, controllerInputB }) {
+    const [localInputA, setLocalInputA] = useState(false);
+    const [localInputB, setLocalInputB] = useState(false);
+
+    // Use controller input if available, otherwise use local state
+    const inputA = controllerInputA !== undefined ? controllerInputA : localInputA;
+    const inputB = controllerInputB !== undefined ? controllerInputB : localInputB;
 
     // Ouput calculation
     const output = inputA || inputB;
 
-    // keyboard inputs (TEMPORARY)
+    // keyboard inputs (TEMPORARY) - only when controller not connected
     useEffect(() => {
+        if (controllerInputA !== undefined || controllerInputB !== undefined) return;
+
         const handleKeyPress = (e) => {
             if (e.key === '1') {
-                setInputA(prev => !prev);
+                setLocalInputA(prev => !prev);
             } else if (e.key === '2') {
-                setInputB(prev => !prev);
+                setLocalInputB(prev => !prev);
             }
         };
 
         window.addEventListener('keydown', handleKeyPress);
         return () => window.removeEventListener('keydown', handleKeyPress);
-    }, []);
+    }, [controllerInputA, controllerInputB]);
 
     return (
         <div className="flex flex-col items-center justify-center h-full px-8">
@@ -40,12 +46,13 @@ export default function OrGate() {
                             <div className="flex flex-col items-center gap-2">
                                 <div className="text-2xl font-semibold">Input A</div>
                                 <button
-                                    onClick={() => setInputA(!inputA)}
+                                    onClick={() => controllerInputA === undefined && setLocalInputA(!localInputA)}
+                                    disabled={controllerInputA !== undefined}
                                     className={`w-24 h-24 rounded-lg font-bold text-6xl transition-all ${
                                         inputA
                                             ? 'bg-green-500 text-white shadow-lg shadow-green-500/50'
                                             : 'bg-gray-300 text-gray-600'
-                                    }`}>
+                                    } ${controllerInputA !== undefined ? 'cursor-not-allowed opacity-75' : ''}`}>
                                     {inputA ? '1' : '0'}
                                 </button>
                             </div>
@@ -53,12 +60,13 @@ export default function OrGate() {
                             <div className="flex flex-col items-center gap-2">
                                 <div className="text-2xl font-semibold">Input B</div>
                                 <button
-                                    onClick={() => setInputB(!inputB)}
+                                    onClick={() => controllerInputB === undefined && setLocalInputB(!localInputB)}
+                                    disabled={controllerInputB !== undefined}
                                     className={`w-24 h-24 rounded-lg font-bold text-6xl transition-all ${
                                         inputB
                                             ? 'bg-green-500 text-white shadow-lg shadow-green-500/50'
                                             : 'bg-gray-300 text-gray-600'
-                                    }`}>
+                                    } ${controllerInputB !== undefined ? 'cursor-not-allowed opacity-75' : ''}`}>
                                     {inputB ? '1' : '0'}
                                 </button>
                             </div>

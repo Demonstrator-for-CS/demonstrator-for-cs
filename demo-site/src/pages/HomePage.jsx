@@ -1,11 +1,57 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router";
 import { demoCatalog } from "@/data/demoCatalog.js";
+import { useServerState } from "@/hooks/useServerState.js";
 
 export default function HomePage() {
     const [activeIndex, setActiveIndex] = useState(0);
     const navigate = useNavigate();
     const offsetsRef = useRef(new Map());
+    const lastProcessedTimestamp = useRef(null);
+    const { state } = useServerState();
+
+    const hasMultiple = demoCatalog.length > 1;
+
+    function cycle(direction) {
+        if (!hasMultiple) return;
+        const len = demoCatalog.length;
+        setActiveIndex((current) =>
+            direction === "next"
+                ? (current + 1) % len
+                : (current - 1 + len) % len,
+        );
+    }
+
+    // Handle controller input from server
+    useEffect(() => {
+        if (!state.controller_input || !state.controller_input.action) return;
+
+        const { action, payload, timestamp } = state.controller_input;
+
+        // Only process new inputs (avoid re-processing on activeIndex change)
+        if (timestamp && timestamp === lastProcessedTimestamp.current) return;
+        lastProcessedTimestamp.current = timestamp;
+
+        if (action === 'navigate' && payload?.direction) {
+            const { direction } = payload;
+
+            if (direction === 'prev') {
+                cycle('prev');
+            } else if (direction === 'next') {
+                cycle('next');
+            } else if (direction === 'select') {
+                if (payload.demoPath) {
+                    navigate(payload.demoPath);
+                } else {
+                    const activeDemo = demoCatalog[activeIndex];
+                    if (activeDemo && activeDemo.status === 'available') {
+                        const target = activeDemo.path || `/demos/${activeDemo.id}`;
+                        navigate(target);
+                    }
+                }
+            }
+        }
+    }, [state.controller_input, activeIndex, navigate, cycle]);
 
     const carouselCards = useMemo(() => {
         const total = demoCatalog.length;
