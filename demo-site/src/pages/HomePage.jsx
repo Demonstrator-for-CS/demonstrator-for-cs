@@ -70,17 +70,6 @@ export default function HomePage() {
         return cards;
     }, [activeIndex]);
 
-    const hasMultiple = demoCatalog.length > 1;
-
-    function cycle(direction) {
-        if (!hasMultiple) return;
-        const len = demoCatalog.length;
-        setActiveIndex((current) =>
-            direction === "next"
-                ? (current + 1) % len
-                : (current - 1 + len) % len
-        );
-    }
 
     function launchDemo(demo) {
         if (!demo || demo.status !== "available") return;
