@@ -40,9 +40,9 @@ function App() {
       </div>
       <h3>Select Demo</h3>
       <div className="card">
-        <button className = "navigate-button" onClick={handlePrev}> ← </button>
-        <button className = "navigate-button" onClick={handleSelect}> Select </button>
-        <button className = "navigate-button" onClick={handleNext}> → </button>
+        <button className = "navigate-button" onClick={handlePrev} style={{fontSize:'20px'}}> ← </button>
+        <button className = "navigate-button" onClick={handleSelect} style={{fontSize:'20px'}}> Select </button>
+        <button className = "navigate-button" onClick={handleNext} style={{fontSize:'20px'}}> → </button>
       </div>
       <p className="read-the-docs" id = 'instructions'>
         Use these buttons to navigate through the demonstrator!

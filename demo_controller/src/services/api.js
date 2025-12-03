@@ -37,6 +37,10 @@ export const reset = () => {
   sendControllerInput('reset');
 };
 
+export const startSorting = () => {
+  sendControllerInput('start_sorting');
+}
+
 export const setDemo = (demo) => {
   sendControllerInput('set_demo', { demo });
 };
