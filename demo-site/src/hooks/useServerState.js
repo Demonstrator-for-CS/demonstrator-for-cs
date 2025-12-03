@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { io } from 'socket.io-client';
 
-const BACKEND = 'http://localhost:5000';
+const BACKEND = 'https://pitt-cs-demo-server.onrender.com';
 
 let socket = null;
 let sharedState = {

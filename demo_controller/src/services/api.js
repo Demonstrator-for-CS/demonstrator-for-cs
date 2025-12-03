@@ -1,7 +1,7 @@
 // API service for communicating with Flask server
 // Controller sends data one-way - no response handling
 
-const API_BASE_URL = 'http://localhost:5000';
+const API_BASE_URL = 'https://pitt-cs-demo-server.onrender.com';
 
 export const sendControllerInput = (action, payload = {}) => {
   // Fire and forget - don't wait for response
@@ -42,4 +42,10 @@ export const setDemo = (demo) => {
 
 export const sendLogicGatesInput = (input) => {
   sendControllerInput('logic_gates_input', input);
+};
+
+export const navigateHome = () => {
+  sendControllerInput('navigate_home');
+  // Also navigate the controller itself to home
+  window.location.href = '/';
 };
