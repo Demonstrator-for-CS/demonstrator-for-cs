@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router";
+import QRCode from "react-qr-code";
 import { demoCatalog } from "@/data/demoCatalog.js";
 import { useServerState } from "@/hooks/useServerState.js";
 
@@ -88,6 +89,16 @@ export default function HomePage() {
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 text-black flex flex-col items-center justify-center">
+            {/* QR Code in bottom left corner */}
+            <div className="absolute bottom-8 left-8 bg-white p-6 rounded-lg shadow-lg">
+                <QRCode
+                    value="https://demonstrator-for-cs.github.io/"
+                    size={200}
+                    level="M"
+                />
+                <p className="text-sm text-center mt-3 text-gray-600 font-medium">Scan to interact</p>
+            </div>
+
             <div className="flex flex-col items-center justify-center w-full pt-12 pb-8">
                 <h1 className="text-center text-9xl font-bold mb-6 text-blue-600">CS Demonstrator</h1>
             </div>
@@ -164,4 +175,3 @@ function CarouselCard({ demo, offset, isActive, onSelect, onActivate }) {
         </button>
     );
 }
-

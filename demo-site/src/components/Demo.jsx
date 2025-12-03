@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Play, Pause, ChevronLeft, ChevronRight } from 'lucide-react';
+import QRCode from 'react-qr-code';
 import { useServerState } from '@/hooks/useServerState';
-// import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 export default function Demo({ slides, slideDuration }) {
     const [currentSlide, setCurrentSlide] = useState(0);
@@ -20,17 +20,7 @@ export default function Demo({ slides, slideDuration }) {
         }
     }, [state.current_slide, state.status]);
 
-    useEffect(() => {
-        if (isPaused || currentSlide >= slides.length - 1) return;
-
-        const timer = setTimeout(() => {
-            setCurrentSlide(prev => prev + 1);
-        }, slideDuration);
-
-        return () => {
-            clearTimeout(timer);
-        };
-    }, [currentSlide, isPaused, slides.length, slideDuration]);
+    // Removed auto-play functionality - manual interaction only
 
     const goToNext = () => {
         if (currentSlide < slides.length - 1) {
@@ -74,6 +64,16 @@ export default function Demo({ slides, slideDuration }) {
                 <div className="w-full h-full transition-opacity duration-500">
                     <CurrentSlideComponent controllerInputA={inputA} controllerInputB={inputB} />
                 </div>
+            </div>
+
+            {/* QR Code in top right corner */}
+            <div className="absolute top-6 right-6 bg-white p-4 rounded-lg shadow-lg">
+                <QRCode
+                    value="https://demonstrator-for-cs.github.io/"
+                    size={128}
+                    level="M"
+                />
+                <p className="text-xs text-center mt-2 text-gray-600">Scan to interact</p>
             </div>
         </div>
     );
