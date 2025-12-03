@@ -13,12 +13,6 @@ export const demoCatalog = [
         status: "available",
         path: "/searching-sorting",
     },
-    {
-        id: "demo3",
-        title: "Demo 3",
-        status: "available",
-        path: "/logic-gates",
-    },
 ];
 
 export function getDemoById(id) {
