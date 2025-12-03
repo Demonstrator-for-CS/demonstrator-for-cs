@@ -107,10 +107,10 @@ def controller_input():
                 'payload': payload,
                 'timestamp': data.get('timestamp')
             }
-            if direction == 'next' and demo_state['current_demo'] == 'logic' and demo_state['current_slide'] == 30:
-                demo_state['current_slide'] += 1
-            elif direction == 'next' and demo_state['current_demo'] == 'adder' and demo_state['current_slide'] == 7:
+            if direction == 'next' and demo_state['current_demo'] == 'adder' and demo_state['current_slide'] == 7:
                 demo_state['current_slide'] = 0
+            elif direction == 'next':
+                demo_state['current_slide'] += 1
             elif direction == 'prev':
                 demo_state['current_slide'] = max(0, demo_state['current_slide'] - 1)
             elif direction == 'select':
