@@ -2,11 +2,67 @@
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script type="text/javascript" src="simcir.js"></script>
     <link rel="stylesheet" type="text/css" href="simcir.css" />
     <script type="text/javascript" src="simcir-basicset.js"></script>
     <link rel="stylesheet" type="text/css" href="simcir-basicset.css" />
     <title>One-Bit Adder</title>
+    <script>
+        // Listen for messages from parent window (React component)
+        window.addEventListener('message', function(event) {
+            if (event.data.type === 'toggleInput') {
+                const { input, value } = event.data;
+                onSimcirReady(function() {
+                    setToggleValue(input, value);
+                });
+            }
+        });
+
+        function getSimcirDevice(label) {
+            let foundDevice = null;
+            // Use simcir's own jQuery-like selector
+            const $workspace = simcir.$('.simcir-workspace');
+            if ($workspace.length > 0) {
+                const $devices = $workspace.find('.simcir-device');
+                $devices.each(function() {
+                    // 'this' is the DOM element, wrap it with simcir.$
+                    const deviceController = simcir.controller(simcir.$(this));
+                    if (deviceController && deviceController.getLabel() === label) {
+                        foundDevice = deviceController;
+                        return false; // break from .each loop
+                    }
+                });
+            }
+            return foundDevice;
+        }
+
+        function setToggleValue(label, value) {
+            const device = getSimcirDevice(label);
+            // Check if it's a Toggle device
+            if (device && device.deviceDef && device.deviceDef.type === 'Toggle') {
+                const outputNode = device.getOutputs()[0];
+                if (outputNode) {
+                    const isCurrentlyOn = outputNode.getValue() !== null;
+                    // value is a boolean from the controller
+                    if (isCurrentlyOn !== value) {
+                        device.$ui.find('.simcir-basicset-toggle-knob').trigger('click');
+                    }
+                }
+            }
+        }
+
+        function onSimcirReady(callback) {
+            const interval = setInterval(() => {
+                // Use simcir's selector to be safe
+                const $workspace = simcir.$('.simcir-workspace');
+                if ($workspace.length > 0 && simcir.controller($workspace)) {
+                    clearInterval(interval);
+                    callback();
+                }
+            }, 100);
+        }
+    </script>
 </head>
     <body>
         <div class="simcir">

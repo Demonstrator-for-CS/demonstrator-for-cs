@@ -3,3 +3,19 @@
 
 # JetBrains IDEs (IntelliJ, PyCharm, WebStorm, etc.)
 .idea/
+
+# Environment variables
+.env
+*.env
+!.env.example
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+venv/
+*.egg-info/
+
+# Logs
+*.log
+interactionLog.txt

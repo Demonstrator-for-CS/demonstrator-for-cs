@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import '@/css/App.css'
-import { navigate, play, pause, reset, setDemo } from '@/services/api'
+import { navigate, play, pause, reset, setDemo, navigateHome } from '@/services/api'
 
 function App() {
   const [count, setCount] = useState(0)
@@ -32,7 +32,7 @@ function App() {
         </div>
 
         <div className="home" style = {{marginTop: '20px'}}>
-          <button onClick={() => navigate('select')} id='home_button'>
+          <button onClick={() => navigateHome()} id='home_button'>
             &#127968;
           </button>
           <button onClick={() => pause()} id='pause_button'> || </button>

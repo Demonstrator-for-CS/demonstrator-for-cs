@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import '@/css/App.css'
-import { navigate, pause, sendLogicGatesInput, setDemo } from '@/services/api'
+import { navigate, pause, sendLogicGatesInput, setDemo, navigateHome } from '@/services/api'
 import { useEffect } from 'react'
 
 function App() {
@@ -44,7 +44,7 @@ function App() {
           <button className = 'num-pad' onClick={handleInputB} style={{backgroundColor: inputB ? '#4CAF50' : '#f44336'}}>B</button>
         </div>
         <div className="home" style = {{marginTop: '20px'}}>
-          <button onClick={() => navigate('select')} id='home_button'>
+          <button onClick={() => navigateHome()} id='home_button'>
             &#127968;
           </button>
           <button onClick={() => pause()} id='pause_button'> || </button>
