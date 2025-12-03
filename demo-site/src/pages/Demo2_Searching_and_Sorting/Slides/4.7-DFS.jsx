@@ -2,12 +2,13 @@ import {ReactFlow, Position, Handle} from '@xyflow/react';
 import TreeNode from '../Styles/TreeNode.jsx';
 import SelectedNode from '../Styles/SelectedNode.jsx';
 import VisistedNode from '../Styles/VisitedNode.jsx';
-
+import CorrectNode from "../Styles/CorrectNode.jsx";
 
 const nodeTypes = {
     treeNode: TreeNode,
     selectedNode: SelectedNode,
     visitedNode: VisistedNode,
+    correctNode: CorrectNode,
 };
 
 const nodes = [
@@ -43,13 +44,13 @@ const nodes = [
     },
     {
         id: '6',
-        type: 'selectedNode',
+        type: 'visitedNode',
         position: { x: 300, y: 200 },
         data: { label: '6' },
     },
     {
         id: '1',
-        type: 'treeNode',
+        type: 'correctNode',
         position: { x: 400, y: 200 },
         data: { label: '1' },
     },
@@ -70,9 +71,14 @@ export default function Trees() {
             <div className="grid grid-cols-2 items-center justify-center px-4 h-full w-full">
                 <div className="flex flex-col items-center gap-4">
                     <p className="text-5xl">
-                        Neither is 6
+                        The algorithm found <span className="font-bold">1</span>!
+                    </p>
+                    <p className="text-5xl">
+                        This is another worst-case scenario, since it had to fully search the tree before finding the data.
                     </p>
                 </div>
+
+
                 <div className="w-full h-full">
                     <ReactFlow
                         nodes={nodes}
@@ -86,6 +92,7 @@ export default function Trees() {
                     />
                 </div>
             </div>
+
         </div>
     );
 }
