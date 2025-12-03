@@ -107,7 +107,9 @@ def controller_input():
                 'payload': payload,
                 'timestamp': data.get('timestamp')
             }
-            if direction == 'next' and demo_state['current_demo'] == 'adder' and demo_state['current_slide'] == 7:
+            if direction == 'next' and demo_state['current_demo'] == 'logic-gates' and demo_state['current_slide'] == 7:
+                demo_state['current_slide'] = 0
+            elif direction == 'next' and demo_state['current_demo'] == 'searching-sorting' and demo_state['current_slide'] == 30:
                 demo_state['current_slide'] = 0
             elif direction == 'next':
                 demo_state['current_slide'] += 1
