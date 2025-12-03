@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 
-// Demo site always runs locally, so hardcode localhost
-const BACKEND = 'http://localhost:5000';
+const BACKEND = "https://demonstrator-v1-0.onrender.com/";
 
 export default function Controls({ demoId }) {
   const [speed, setSpeed] = useState(60);
@@ -22,7 +21,7 @@ export default function Controls({ demoId }) {
         const r = await fetch(`${BACKEND}/api/status?demo=${demoId}`);
         const j = await r.json();
         setState(j.state || "—");
-      } catch { }
+      } catch { /* empty */ }
       t = setTimeout(poll, 1000);
     }
     poll();
