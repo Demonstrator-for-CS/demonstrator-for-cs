@@ -66,7 +66,7 @@ export default function Trees() {
             <div className="grid grid-cols-2 items-center justify-center px-4 h-full w-full">
                 <div className="flex flex-col items-center gap-4">
                     <p className="text-5xl">
-                        <span className="font-bold">Depth-First Search (BFS)</span> is another method of searching for data in a tree.
+                        <span className="font-bold">Depth-First Search (DFS)</span> is another method of searching for data in a tree.
                     </p>
                     <p className="text-5xl">
                         <span className="font-bold">DFS</span> reaches down to the very bottom of the tree and works its way up from there
