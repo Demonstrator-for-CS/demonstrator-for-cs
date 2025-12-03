@@ -90,7 +90,7 @@ export default function HomePage() {
     return (
         <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 text-black flex flex-col items-center justify-center">
             {/* QR Code in bottom left corner */}
-            <div className="absolute bottom-8 left-8 bg-white p-6 rounded-lg shadow-lg">
+            <div className="absolute bottom-8 left-8 bg-white p-6 rounded-lg shadow-lg z-50">
                 <QRCode
                     value="https://demonstrator-for-cs.github.io/"
                     size={200}
