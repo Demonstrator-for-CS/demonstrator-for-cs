@@ -4,21 +4,14 @@ import { useServerState } from '@/hooks/useServerState.js';
 
 export default function NavigationListener() {
   const navigate = useNavigate();
-  const { socket } = useServerState();
+  const { command, consumeCommand } = useServerState();
 
   useEffect(() => {
-    if (!socket) return;
-
-    const handleNavigateHome = () => {
+    if (command && command.name === 'navigate_to_home') {
       navigate('/');
-    };
+      consumeCommand();
+    }
+  }, [command, navigate, consumeCommand]);
 
-    socket.on('navigate_to_home', handleNavigateHome);
-
-    return () => {
-      socket.off('navigate_to_home', handleNavigateHome);
-    };
-  }, [socket, navigate]);
-
-  return null; // This component doesn't render anything
+  return null;
 }

@@ -34,7 +34,7 @@ CORS(app, resources={
 socketio = SocketIO(
     app,
     cors_allowed_origins=Config.CORS_ORIGINS,
-    async_mode='eventlet',
+    async_mode='threading',
     logger=False,
     engineio_logger=False,
     ping_timeout=60,
@@ -107,8 +107,10 @@ def controller_input():
                 'payload': payload,
                 'timestamp': data.get('timestamp')
             }
-            if direction == 'next' and demo_state['current_slide'] < 7: #7 is the max slide for now
+            if direction == 'next' and demo_state['current_demo'] == 'logic' and demo_state['current_slide'] == 30:
                 demo_state['current_slide'] += 1
+            elif direction == 'next' and demo_state['current_demo'] == 'adder' and demo_state['current_slide'] == 7:
+                demo_state['current_slide'] = 0
             elif direction == 'prev':
                 demo_state['current_slide'] = max(0, demo_state['current_slide'] - 1)
             elif direction == 'select':
@@ -273,5 +275,6 @@ if __name__ == '__main__':
 
 ##TODO: Get user input to work with Adder
 ##TODO: Test Render server interaction more
+
 ##TODO: Flash Pi With Newest Stuff
 ##TODO: Make Pi Script to Have it Autoboot the demo

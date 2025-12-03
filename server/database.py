@@ -16,6 +16,14 @@ HOST = os.getenv("DB_HOST")
 PORT = os.getenv("DB_PORT", "6543")
 DBNAME = os.getenv("DB_NAME", "postgres")
 
+# Debug logging to help diagnose credential issues
+logger.info("Database configuration check:")
+logger.info(f"  DB_USER: {'SET' if USER else 'MISSING'}")
+logger.info(f"  DB_PASSWORD: {'SET' if PASSWORD else 'MISSING'}")
+logger.info(f"  DB_HOST: {HOST if HOST else 'MISSING'}")
+logger.info(f"  DB_PORT: {PORT}")
+logger.info(f"  DB_NAME: {DBNAME}")
+
 
 def log_interaction(event_type: str, details: str = None):
     """
@@ -26,7 +34,13 @@ def log_interaction(event_type: str, details: str = None):
         details: Optional additional details about the event
     """
     if not all([USER, PASSWORD, HOST, PORT, DBNAME]):
-        logger.warning("Database credentials not configured. Skipping log.")
+        missing = []
+        if not USER: missing.append("DB_USER")
+        if not PASSWORD: missing.append("DB_PASSWORD")
+        if not HOST: missing.append("DB_HOST")
+        if not PORT: missing.append("DB_PORT")
+        if not DBNAME: missing.append("DB_NAME")
+        logger.warning(f"Database credentials not configured. Missing: {', '.join(missing)}. Skipping log.")
         return False
 
     try:

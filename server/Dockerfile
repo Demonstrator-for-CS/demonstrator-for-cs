@@ -28,17 +28,19 @@ EXPOSE $PORT
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
     CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:${PORT:-8000}/health')" || exit 1
 
-# Use gunicorn with eventlet worker for SocketIO support
+# Use gunicorn with gthread worker for SocketIO support
 # Configuration optimized for production:
-# - worker-class eventlet: Required for WebSocket/SocketIO support
-# - workers 1: Eventlet workers should use 1 worker
+# - worker-class gthread: Threaded worker for WebSocket/SocketIO support
+# - workers 1: Use 1 worker process
+# - threads 4: Use 4 threads per worker for concurrent requests
 # - timeout 120: Increased timeout for long-running connections
 # - keepalive 5: Keep connections alive
 # - access-logfile -: Log to stdout
 # - error-logfile -: Log errors to stderr
 CMD gunicorn \
-    --worker-class eventlet \
+    --worker-class gthread \
     -w 1 \
+    --threads 4 \
     --bind 0.0.0.0:$PORT \
     --timeout 120 \
     --keep-alive 5 \
