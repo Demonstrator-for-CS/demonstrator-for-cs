@@ -5,9 +5,11 @@ import App from "@/App.jsx";
 import HomePage from "@/pages/HomePage.jsx"
 import LogicGates from "@/pages/Demo1_Logic_Gates/Logic_Gates_Main.jsx";
 import SearchingSorting from "@/pages/Demo2_Searching_and_Sorting/Searching_Sorting_Main.jsx"
+import NavigationListener from "@/components/NavigationListener.jsx";
 
 createRoot(document.getElementById("root")).render(
     <BrowserRouter>
+        <NavigationListener />
         <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/logic-gates" element={<LogicGates />} />
