@@ -3,7 +3,6 @@ import TreeNode from '../Styles/TreeNode.jsx';
 import SelectedNode from '../Styles/SelectedNode.jsx';
 import VisistedNode from '../Styles/VisitedNode.jsx';
 
-
 const nodeTypes = {
     treeNode: TreeNode,
     selectedNode: SelectedNode,
@@ -25,7 +24,7 @@ const nodes = [
     },
     {
         id: '3',
-        type: 'visitedNode',
+        type: 'selectedNode',
         position: { x: 350, y: 100 },
         data: { label: '3' },
     },
@@ -43,7 +42,7 @@ const nodes = [
     },
     {
         id: '6',
-        type: 'selectedNode',
+        type: 'visitedNode',
         position: { x: 300, y: 200 },
         data: { label: '6' },
     },
@@ -70,9 +69,14 @@ export default function Trees() {
             <div className="grid grid-cols-2 items-center justify-center px-4 h-full w-full">
                 <div className="flex flex-col items-center gap-4">
                     <p className="text-5xl">
-                        Neither is 6
+                        <span className="font-bold">6</span> doesn't have any children, so go to it's parent, <span className="text-red-500">3</span>.
+                    </p>
+                    <p className="text-5xl">
+                        Not a match...
                     </p>
                 </div>
+
+
                 <div className="w-full h-full">
                     <ReactFlow
                         nodes={nodes}
@@ -86,6 +90,7 @@ export default function Trees() {
                     />
                 </div>
             </div>
+
         </div>
     );
 }

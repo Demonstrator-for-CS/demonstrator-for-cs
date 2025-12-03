@@ -68,14 +68,14 @@ export default function Trees() {
     return (
         <div className="flex flex-col items-center justify-center h-full text-center px-8">
             <div className="grid grid-cols-2 items-center justify-center px-4 h-full w-full">
-                <div className="flex flex-col items-center gap-4 w-1/2 min-w-1/2">
-                    <p className="text-3xl">
+                <div className="flex flex-col items-center gap-4 ">
+                    <p className="text-5xl">
                         The algorithm first looks at 7, the <span className="font-bold">root node</span>
                     </p>
-                    <p className="text-3xl">
+                    <p className="text-5xl">
                         It see's the data there is 7 which is not <span className="font-bold">1</span>
                     </p>
-                    <p className="text-3xl">
+                    <p className="text-5xl">
                         Moving onto the next node...
                     </p>
                 </div>

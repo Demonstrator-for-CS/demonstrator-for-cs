@@ -3,7 +3,6 @@ import TreeNode from '../Styles/TreeNode.jsx';
 import SelectedNode from '../Styles/SelectedNode.jsx';
 import VisistedNode from '../Styles/VisitedNode.jsx';
 
-
 const nodeTypes = {
     treeNode: TreeNode,
     selectedNode: SelectedNode,
@@ -25,7 +24,7 @@ const nodes = [
     },
     {
         id: '3',
-        type: 'visitedNode',
+        type: 'treeNode',
         position: { x: 350, y: 100 },
         data: { label: '3' },
     },
@@ -70,9 +69,14 @@ export default function Trees() {
             <div className="grid grid-cols-2 items-center justify-center px-4 h-full w-full">
                 <div className="flex flex-col items-center gap-4">
                     <p className="text-5xl">
-                        Neither is 6
+                        The algorithm then dives all the way down into the right subtree.
+                    </p>
+                    <p className="text-5xl">
+                        It finds <span className="text-red-500">6</span>. This is not a match.
                     </p>
                 </div>
+
+
                 <div className="w-full h-full">
                     <ReactFlow
                         nodes={nodes}
@@ -86,6 +90,7 @@ export default function Trees() {
                     />
                 </div>
             </div>
+
         </div>
     );
 }

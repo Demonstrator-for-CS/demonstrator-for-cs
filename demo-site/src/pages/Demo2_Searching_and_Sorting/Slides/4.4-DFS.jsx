@@ -3,7 +3,6 @@ import TreeNode from '../Styles/TreeNode.jsx';
 import SelectedNode from '../Styles/SelectedNode.jsx';
 import VisistedNode from '../Styles/VisitedNode.jsx';
 
-
 const nodeTypes = {
     treeNode: TreeNode,
     selectedNode: SelectedNode,
@@ -13,7 +12,7 @@ const nodeTypes = {
 const nodes = [
     {
         id: '7',
-        type: 'visitedNode',
+        type: 'selectedNode',
         position: { x: 250, y: 0 },
         data: { label: '7' },
     },
@@ -25,7 +24,7 @@ const nodes = [
     },
     {
         id: '3',
-        type: 'visitedNode',
+        type: 'treeNode',
         position: { x: 350, y: 100 },
         data: { label: '3' },
     },
@@ -43,7 +42,7 @@ const nodes = [
     },
     {
         id: '6',
-        type: 'selectedNode',
+        type: 'treeNode',
         position: { x: 300, y: 200 },
         data: { label: '6' },
     },
@@ -70,9 +69,14 @@ export default function Trees() {
             <div className="grid grid-cols-2 items-center justify-center px-4 h-full w-full">
                 <div className="flex flex-col items-center gap-4">
                     <p className="text-5xl">
-                        Neither is 6
+                        <span className="font-bold">4</span> does not have any children to search, so go up the tree until we find a node we haven't searched yet.
+                    </p>
+                    <p className="text-5xl">
+                        The algorithm finds <span className="text-red-500">7</span>, which is not a match either.
                     </p>
                 </div>
+
+
                 <div className="w-full h-full">
                     <ReactFlow
                         nodes={nodes}
@@ -86,6 +90,7 @@ export default function Trees() {
                     />
                 </div>
             </div>
+
         </div>
     );
 }

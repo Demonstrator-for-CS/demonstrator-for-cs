@@ -3,7 +3,6 @@ import TreeNode from '../Styles/TreeNode.jsx';
 import SelectedNode from '../Styles/SelectedNode.jsx';
 import VisistedNode from '../Styles/VisitedNode.jsx';
 
-
 const nodeTypes = {
     treeNode: TreeNode,
     selectedNode: SelectedNode,
@@ -13,19 +12,19 @@ const nodeTypes = {
 const nodes = [
     {
         id: '7',
-        type: 'visitedNode',
+        type: 'treeNode',
         position: { x: 250, y: 0 },
         data: { label: '7' },
     },
     {
         id: '2',
-        type: 'visitedNode',
+        type: 'selectedNode',
         position: { x: 150, y: 100 },
         data: { label: '2' },
     },
     {
         id: '3',
-        type: 'visitedNode',
+        type: 'treeNode',
         position: { x: 350, y: 100 },
         data: { label: '3' },
     },
@@ -37,13 +36,13 @@ const nodes = [
     },
     {
         id: '4',
-        type: 'visitedNode',
+        type: 'treeNode',
         position: { x: 200, y: 200 },
         data: { label: '4' },
     },
     {
         id: '6',
-        type: 'selectedNode',
+        type: 'treeNode',
         position: { x: 300, y: 200 },
         data: { label: '6' },
     },
@@ -70,9 +69,14 @@ export default function Trees() {
             <div className="grid grid-cols-2 items-center justify-center px-4 h-full w-full">
                 <div className="flex flex-col items-center gap-4">
                     <p className="text-5xl">
-                        Neither is 6
+                        The algorithm cannot traverse further down, so it instead looks at the parent of the last searched node, <span className="font-bold">5</span>.
+                    </p>
+                    <p className="text-5xl">
+                        <span className="text-red-500">2</span> is not a match.
                     </p>
                 </div>
+
+
                 <div className="w-full h-full">
                     <ReactFlow
                         nodes={nodes}
@@ -86,6 +90,7 @@ export default function Trees() {
                     />
                 </div>
             </div>
+
         </div>
     );
 }
