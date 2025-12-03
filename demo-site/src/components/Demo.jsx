@@ -3,7 +3,7 @@ import { Play, Pause, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useServerState } from '@/hooks/useServerState';
 // import { ChevronLeft, ChevronRight } from 'lucide-react';
 
-export default function Demo({ slides }) {
+export default function Demo({ slides, slideDuration }) {
     const [currentSlide, setCurrentSlide] = useState(0);
     const [isPaused, setIsPaused] = useState(false);
     const { state} = useServerState();
