@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Play, Pause, ChevronLeft, ChevronRight } from 'lucide-react';
 import QRCode from 'react-qr-code';
 import { useServerState } from '@/hooks/useServerState';
@@ -8,17 +8,30 @@ export default function Demo({ slides, slideDuration }) {
     const [isPaused, setIsPaused] = useState(false);
     const { state} = useServerState();
 
-    // Sync with server state
+    const clampIndex = useCallback(
+        (idx) => {
+            if (!slides || slides.length === 0) return 0;
+            return Math.min(Math.max(idx, 0), slides.length - 1);
+        },
+        [slides]
+    );
+
     useEffect(() => {
-        if (state.current_slide !== undefined) {
-            setCurrentSlide(state.current_slide);
+        setCurrentSlide((prev) => clampIndex(prev));
+    }, [slides, clampIndex]);
+
+    // Sync with server state only when controller is active
+    useEffect(() => {
+        const controllerActive = state.status === 'playing' || state.status === 'paused';
+        if (controllerActive && typeof state.current_slide === 'number') {
+            setCurrentSlide(clampIndex(state.current_slide));
         }
         if (state.status === 'playing') {
             setIsPaused(false);
         } else if (state.status === 'paused') {
             setIsPaused(true);
         }
-    }, [state.current_slide, state.status]);
+    }, [state.current_slide, state.status, clampIndex]);
 
     // Removed auto-play functionality - manual interaction only
 
@@ -50,7 +63,8 @@ export default function Demo({ slides, slideDuration }) {
         };
     }, [currentSlide]);
 
-    const CurrentSlideComponent = slides[currentSlide].component;
+    const CurrentSlideComponent = slides[currentSlide]?.component;
+    if (!CurrentSlideComponent) return null;
 
     // Extract logic gates controller input if available
     const controllerInput = state.controller_input || {};

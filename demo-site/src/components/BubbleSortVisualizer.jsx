@@ -158,50 +158,7 @@ export default function BubbleSortVisualizer() {
 
   return (
     <div className="relative w-full rounded-[32px] border border-slate-200 bg-white px-16 pt-36 pb-16 text-slate-900 shadow-2xl overflow-hidden min-h-[40rem]">
-      <AnimatePresence>
-        {spotlightInfo && (
-          <motion.div
-            key="spotlight"
-            className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-8 bg-slate-950/75 backdrop-blur"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.35 }}
-          >
-            {spotlightInfo.values.length > 0 && (
-              <div className="flex flex-wrap items-center justify-center gap-6">
-                {spotlightInfo.values.map((value, idx) => (
-                  <motion.div
-                    key={`${value}-${idx}-spotlight`}
-                    initial={{ scale: 0.75, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    exit={{ scale: 0.85, opacity: 0 }}
-                    transition={{ duration: 0.3 }}
-                    className="flex h-44 w-28 items-center justify-center rounded-[2.75rem] border-4 border-sky-400 bg-white text-6xl font-black text-slate-800 shadow-2xl sm:w-32"
-                  >
-                    {value}
-                  </motion.div>
-                ))}
-              </div>
-            )}
-            <motion.div
-              initial={{ opacity: 0, y: 18 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 18 }}
-              transition={{ duration: 0.25 }}
-              className="px-4 text-center text-3xl font-black uppercase tracking-[0.35em] text-rose-400 sm:text-4xl"
-            >
-              {spotlightInfo.text}
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      <motion.div
-        className="flex flex-col gap-8"
-        animate={{ opacity: spotlightInfo ? 0.08 : 1 }}
-        transition={{ duration: 0.35 }}
-      >
+      <motion.div className="flex flex-col gap-8" animate={{ opacity: 1 }}>
         <div className="flex flex-wrap items-end justify-center gap-6 sm:gap-8">
           {values.map((value, index) => {
             const isActive = highlightIndices.includes(index);
@@ -253,7 +210,7 @@ export default function BubbleSortVisualizer() {
                   scale,
                   boxShadow: glow,
                 }}
-                className={`flex h-36 w-24 items-center justify-center rounded-[2.5rem] border-4 text-5xl font-black tracking-wide ${borderClass}`}
+                className={`flex h-40 w-28 items-center justify-center rounded-[2.75rem] border-4 text-7xl font-black tracking-wide ${borderClass}`}
               >
                 {value}
               </motion.div>
@@ -262,7 +219,7 @@ export default function BubbleSortVisualizer() {
         </div>
 
         <div
-          className={`min-h-[1.5rem] text-center text-sm font-semibold uppercase tracking-[0.4em] ${
+          className={`min-h-[2rem] text-center text-base font-semibold uppercase tracking-[0.4em] ${
             announcement.tone === "alert" ? "text-rose-500" : "text-slate-500"
           }`}
         >
@@ -287,6 +244,10 @@ export default function BubbleSortVisualizer() {
             <RotateCcw size={18} />
             Reset
           </button>
+        </div>
+
+        <div className="mt-4 text-center text-2xl font-semibold text-slate-700">
+          Time Complexity: <span className="text-blue-600">O(n^2)</span> &nbsp;|&nbsp; Space: <span className="text-blue-600">O(1)</span>
         </div>
       </motion.div>
     </div>
@@ -336,7 +297,7 @@ function getBubbleSpotlight(step) {
     case "drop":
       return { values: [step.a, step.b], text: "Drop them into their new spots" };
     case "settle":
-      return { values: [step.a, step.b], text: "Already in order ¡ª keep them" };
+      return { values: [step.a, step.b], text: "Already in order keep them" };
     case "mark":
       return { values: [step.value], text: `Lock ${step.value} into place` };
     case "complete":
