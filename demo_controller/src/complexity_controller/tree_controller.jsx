@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import '@/css/App.css'
 import { navigate, pause, setDemo, navigateHome } from '@/services/api'
+import { startSorting } from '../services/api';
 
 function App() {
   const [count, setCount] = useState(0)
@@ -13,7 +14,7 @@ function App() {
 
   return (
     <>
-      <div>
+      <div className='controller-container'>
       </div>
       <h3>Searching and Sorting</h3>
       <div className="card">
@@ -25,6 +26,18 @@ function App() {
             →
           </button>
         </div>
+
+        <div className="sorting-algorithms">
+          <button onClick={() => startSorting()} id='start_sorting'>
+            Start
+          </button>
+
+          <button onClick={() => reset()} id='reset_sorting'>
+            Reset
+          </button>
+
+        </div>
+
         <div className="home" style = {{marginTop: '20px'}}>
           <button onClick={() => navigateHome()} id='home_button'>
             &#127968;
