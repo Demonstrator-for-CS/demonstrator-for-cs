@@ -73,10 +73,10 @@ export default function Trees() {
             <div className="grid grid-cols-2 items-center justify-center px-4 h-full w-full">
                 <div className="flex flex-col items-center gap-4">
                     <p className="text-5xl">
-                        This is an example of the <span className="font-bold">worst case</span> for an algorithm
+                        If we use <span className="font-bold">n</span> to represent the number of nodes in the tree, then the algorithm had to visit <span className="font-bold">n</span> nodes to find 1.
                     </p>
                     <p className="text-5xl">
-                        The algorithm had to search each and every node in the tree before finding what it was looking for.
+                        Since runtime complexity is based on the worst case scenario, we say this algorithm has <span className="font-bold">O(n)</span> complexity
                     </p>
                 </div>
                 <div className="w-full h-full">
