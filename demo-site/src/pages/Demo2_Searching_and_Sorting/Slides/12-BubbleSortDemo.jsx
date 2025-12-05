@@ -1,5 +1,4 @@
 import React from "react";
-import { motion } from "framer-motion";
 import BubbleSortVisualizer from "@/components/BubbleSortVisualizer.jsx";
 
 export default function BubbleSortDemoSlide() {
@@ -7,29 +6,8 @@ export default function BubbleSortDemoSlide() {
     <div className="flex h-full w-full flex-col items-center justify-center bg-white px-6 text-slate-800">
       <h2 className="mt-4 text-9xl font-bold text-blue-600">Bubble Sort</h2>
 
-      <div className="relative mt-10 w-full max-w-7xl flex flex-col items-center">
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.45, ease: "easeOut" }}
-          className="z-10 mb-6 w-full max-w-2xl rounded-3xl border border-slate-200 bg-slate-50 px-7 py-6 text-left shadow-md lg:absolute lg:top-6 lg:right-full lg:mr-10 lg:translate-x-20 lg:mb-0 lg:w-[360px]"
-        >
-          <h3 className="text-3xl font-bold text-slate-800">Algorithm Complexity</h3>
-          <p className="mt-3 text-xl text-slate-700">
-            Time: O(n²) on average and worst case; best case O(n) if already sorted.
-          </p>
-          <p className="mt-2 text-xl text-slate-700">
-            Why O(n²)? Bubble sort compares adjacent pairs across the list repeatedly; as n grows, the number of pair
-            checks grows roughly with n × n.
-          </p>
-          <p className="mt-2 text-xl text-slate-700">Space: O(1) additional space (in-place swaps).</p>
-        </motion.div>
-
-        <div className="flex w-full justify-center">
-          <div className="w-full max-w-5xl">
-            <BubbleSortVisualizer />
-          </div>
-        </div>
+      <div className="mt-8 w-full max-w-5xl">
+        <BubbleSortVisualizer />
       </div>
     </div>
   );
