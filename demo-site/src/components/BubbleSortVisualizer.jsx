@@ -247,7 +247,7 @@ export default function BubbleSortVisualizer() {
         </div>
 
         <div className="mt-4 text-center text-2xl font-semibold text-slate-700">
-          Time Complexity: <span className="text-blue-600">O(n^2)</span> &nbsp;|&nbsp; Space: <span className="text-blue-600">O(1)</span>
+          Time Complexity: <span className="text-blue-600">O(n²)</span> &nbsp;|&nbsp; Space: <span className="text-blue-600">O(1)</span>
         </div>
       </motion.div>
     </div>
