@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Play, Pause, ChevronLeft, ChevronRight } from 'lucide-react';
 import QRCode from 'react-qr-code';
 import { useServerState } from '@/hooks/useServerState';
@@ -7,6 +7,7 @@ export default function Demo({ slides, slideDuration }) {
     const [currentSlide, setCurrentSlide] = useState(0);
     const [isPaused, setIsPaused] = useState(false);
     const { state} = useServerState();
+    const lastServerSlide = useRef(null);
 
     const clampIndex = useCallback(
         (idx) => {
@@ -24,7 +25,11 @@ export default function Demo({ slides, slideDuration }) {
     useEffect(() => {
         const controllerActive = state.status === 'playing' || state.status === 'paused';
         if (controllerActive && typeof state.current_slide === 'number') {
-            setCurrentSlide(clampIndex(state.current_slide));
+            const next = clampIndex(state.current_slide);
+            if (next !== lastServerSlide.current) {
+                lastServerSlide.current = next;
+                setCurrentSlide(next);
+            }
         }
         if (state.status === 'playing') {
             setIsPaused(false);

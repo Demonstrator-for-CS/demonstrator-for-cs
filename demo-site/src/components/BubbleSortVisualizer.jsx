@@ -3,39 +3,28 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Pause, Play, RotateCcw } from "lucide-react";
 
 const INITIAL_VALUES = [5, 4, 3, 2, 1];
-const STEP_DURATION = 2800;
-const PHASE_PORTION = 0.45;
-const SPOTLIGHT_DURATION = 2000;
-const CARD_SWAP_OFFSET = 140;
+const COMPARE_DURATION = 1400;
+const SWAP_DURATION = 1400;
+const MARK_DURATION = 800;
+const SPOTLIGHT_DURATION = 800;
 
 export default function BubbleSortVisualizer() {
+  const steps = useMemo(() => generateSteps(INITIAL_VALUES), []);
+
   const [values, setValues] = useState(() => [...INITIAL_VALUES]);
   const [stepIndex, setStepIndex] = useState(0);
-  const [phaseStage, setPhaseStage] = useState("spotlight");
   const [isRunning, setIsRunning] = useState(false);
   const [completed, setCompleted] = useState(false);
-  const [swapOffsets, setSwapOffsets] = useState({});
-  const [spotlightInfo, setSpotlightInfo] = useState(null);
   const [announcement, setAnnouncement] = useState({ text: "Tap start to watch bubble sort unfold", tone: "calm" });
   const [sortedIndices, setSortedIndices] = useState([]);
-
-  const steps = useMemo(() => generateBubbleSteps(INITIAL_VALUES), []);
+  const [activeCompare, setActiveCompare] = useState([]);
+  const [swapPair, setSwapPair] = useState([]);
   const timersRef = useRef([]);
-  const swapStateRef = useRef({ stepIndex: -1, performed: false });
 
   const currentStep = steps[stepIndex] ?? null;
-  const performing = phaseStage === "action" && currentStep;
-  const phase = performing ? currentStep.type : "idle";
-  const highlightIndices =
-    performing && typeof currentStep.i === "number" && typeof currentStep.j === "number"
-      ? [currentStep.i, currentStep.j]
-      : [];
-  const markFocusIndex = performing && currentStep?.type === "mark" ? currentStep.index : null;
-
-  const isSorted = useCallback((idx) => sortedIndices.includes(idx), [sortedIndices]);
 
   const clearTimers = useCallback(() => {
-    timersRef.current.forEach((handle) => clearTimeout(handle));
+    timersRef.current.forEach((t) => clearTimeout(t));
     timersRef.current = [];
   }, []);
 
@@ -43,14 +32,12 @@ export default function BubbleSortVisualizer() {
     clearTimers();
     setValues(() => [...INITIAL_VALUES]);
     setStepIndex(0);
-    setPhaseStage("spotlight");
     setIsRunning(false);
     setCompleted(false);
-    setSwapOffsets({});
-    setSpotlightInfo(null);
     setAnnouncement({ text: "Tap start to watch bubble sort unfold", tone: "calm" });
     setSortedIndices([]);
-    swapStateRef.current = { stepIndex: -1, performed: false };
+    setActiveCompare([]);
+    setSwapPair([]);
   }, [clearTimers]);
 
   useEffect(() => {
@@ -60,8 +47,6 @@ export default function BubbleSortVisualizer() {
       if (stepIndex >= steps.length && !completed) {
         setCompleted(true);
         setIsRunning(false);
-        setPhaseStage("spotlight");
-        setSpotlightInfo(null);
         setAnnouncement({ text: "Sorted! Bubble sort finished", tone: "calm" });
       }
       return;
@@ -69,83 +54,54 @@ export default function BubbleSortVisualizer() {
 
     const step = steps[stepIndex];
 
-    if (phaseStage === "spotlight") {
-      setSpotlightInfo(getBubbleSpotlight(step));
-      const overlayHandle = setTimeout(() => {
-        setSpotlightInfo(null);
-        setPhaseStage("action");
-      }, SPOTLIGHT_DURATION);
-      timersRef.current.push(overlayHandle);
+    if (step.type === "spotlight") {
+      const t = setTimeout(() => setStepIndex((p) => p + 1), SPOTLIGHT_DURATION);
+      timersRef.current.push(t);
       return () => clearTimers();
-    }
-
-    if (step.type !== "swap") {
-      setSwapOffsets((prev) => (Object.keys(prev).length ? {} : prev));
     }
 
     if (step.type === "compare") {
-      setAnnouncement({ text: `Compare ${step.a} and ${step.b}`, tone: "alert" });
-      const calmHandle = setTimeout(() => {
-        setAnnouncement((prev) => ({ ...prev, tone: "calm" }));
-      }, STEP_DURATION * PHASE_PORTION);
-      timersRef.current.push(calmHandle);
-    } else if (step.type === "swap") {
-      if (swapStateRef.current.stepIndex !== stepIndex) {
-        swapStateRef.current = { stepIndex, performed: false };
-        setSwapOffsets({
-          [step.i]: CARD_SWAP_OFFSET,
-          [step.j]: -CARD_SWAP_OFFSET,
-        });
-        setAnnouncement({ text: `Swap ${step.a} and ${step.b}`, tone: "alert" });
-      }
-
-      const swapHandle = setTimeout(() => {
-        setValues((prev) => {
-          if (swapStateRef.current.stepIndex !== stepIndex || swapStateRef.current.performed) {
-            return prev;
-          }
-          const { i, j, a, b } = step;
-          if (prev[i] !== a || prev[j] !== b) {
-            swapStateRef.current.performed = true;
-            return prev;
-          }
-          const next = [...prev];
-          [next[i], next[j]] = [next[j], next[i]];
-          swapStateRef.current.performed = true;
-          setSwapOffsets({});
-          setAnnouncement({ text: "Swap complete", tone: "calm" });
-          return next;
-        });
-      }, STEP_DURATION * PHASE_PORTION);
-      timersRef.current.push(swapHandle);
-
-      const advanceHandle = setTimeout(() => {
-        swapStateRef.current = { stepIndex: -1, performed: false };
-        setPhaseStage("spotlight");
-        setStepIndex((prev) => prev + 1);
-      }, STEP_DURATION);
-      timersRef.current.push(advanceHandle);
-
-      return () => clearTimers();
-    } else if (step.type === "mark") {
-      const markHandle = setTimeout(() => {
-        setSortedIndices((prev) => (prev.includes(step.index) ? prev : [...prev, step.index]));
-        setPhaseStage("spotlight");
-        setStepIndex((prev) => prev + 1);
-      }, STEP_DURATION * 0.3);
-      timersRef.current.push(markHandle);
+      setActiveCompare([step.i, step.j]);
+      setAnnouncement({
+        text: `${step.a} vs ${step.b} — ${step.needsSwap ? "swap" : "keep order"}`,
+        tone: step.needsSwap ? "alert" : "calm",
+      });
+      const t = setTimeout(() => setStepIndex((p) => p + 1), COMPARE_DURATION);
+      timersRef.current.push(t);
       return () => clearTimers();
     }
 
-    const advanceHandle = setTimeout(() => {
-      setPhaseStage("spotlight");
-      setStepIndex((prev) => prev + 1);
-    }, STEP_DURATION);
+    if (step.type === "swap") {
+      setSwapPair([step.i, step.j]);
+      setAnnouncement({ text: `Swapping ${step.a} and ${step.b}`, tone: "alert" });
 
-    timersRef.current.push(advanceHandle);
+      const doSwap = setTimeout(() => {
+        setValues((prev) => {
+          const next = [...prev];
+          [next[step.i], next[step.j]] = [next[step.j], next[step.i]];
+          return next;
+        });
+      }, SWAP_DURATION * 0.4);
+      const endSwap = setTimeout(() => {
+        setSwapPair([]);
+        setActiveCompare([]);
+        setAnnouncement({ text: "Swap complete", tone: "calm" });
+        setStepIndex((p) => p + 1);
+      }, SWAP_DURATION);
+      timersRef.current.push(doSwap, endSwap);
+      return () => clearTimers();
+    }
 
-    return () => clearTimers();
-  }, [isRunning, stepIndex, steps, phaseStage, clearTimers, completed]);
+    if (step.type === "mark") {
+      setAnnouncement({ text: `Lock ${step.value} into place`, tone: "calm" });
+      const t = setTimeout(() => {
+        setSortedIndices((prev) => (prev.includes(step.index) ? prev : [...prev, step.index]));
+        setStepIndex((p) => p + 1);
+      }, MARK_DURATION);
+      timersRef.current.push(t);
+      return () => clearTimers();
+    }
+  }, [isRunning, stepIndex, steps, clearTimers, completed]);
 
   const toggle = () => {
     if (completed) {
@@ -158,40 +114,25 @@ export default function BubbleSortVisualizer() {
 
   return (
     <div className="relative w-full rounded-[32px] border border-slate-200 bg-white px-16 pt-36 pb-16 text-slate-900 shadow-2xl overflow-hidden min-h-[40rem]">
-      <motion.div className="flex flex-col gap-8" animate={{ opacity: 1 }}>
+      <div className="flex flex-col gap-10">
         <div className="flex flex-wrap items-end justify-center gap-6 sm:gap-8">
           {values.map((value, index) => {
-            const isActive = highlightIndices.includes(index);
-            const isCompare = phase === "compare" && isActive;
-            const isLift = phase === "lift" && isActive;
-            const isGlide = phase === "swap" && isActive;
-            const isDrop = phase === "drop" && isActive;
-            const isSettle = phase === "settle" && isActive;
-            const isMarking = phase === "mark" && markFocusIndex === index;
-            const sorted = isSorted(index);
+            const isCompare = activeCompare.includes(index);
+            const isSwap = swapPair.includes(index);
+            const isMark = sortedIndices.includes(index);
 
-            let elevation = 0;
-            if (isLift || isGlide) elevation = -120;
-            else if (isCompare) elevation = -52;
-            else if (isDrop || isSettle) elevation = -18;
-            else if (isMarking) elevation = -14;
-            else if (isActive) elevation = -10;
-
-            const horizontalOffset = swapOffsets[index] ?? 0;
-            const scale = isLift || isGlide ? 1.18 : isCompare || isMarking ? 1.08 : isActive ? 1.04 : 1;
-            const glow = sorted
-              ? "0px 0px 35px rgba(16,185,129,0.4)"
-              : isLift || isGlide
-                ? "0px 0px 55px rgba(56,189,248,0.55)"
+            const elevation = isSwap ? -30 : isCompare ? -20 : 0;
+            const scale = isSwap ? 1.12 : isCompare ? 1.08 : 1;
+            const glow = isMark
+              ? "0px 0px 35px rgba(16,185,129,0.45)"
+              : isSwap
+                ? "0px 0px 45px rgba(56,189,248,0.45)"
                 : isCompare
-                  ? "0px 0px 38px rgba(56,189,248,0.35)"
-                  : isMarking
-                    ? "0px 0px 30px rgba(56,189,248,0.3)"
-                    : "0px 0px 0px rgba(15,23,42,0)";
-
-            const borderClass = sorted
+                  ? "0px 0px 35px rgba(56,189,248,0.35)"
+                  : "0px 0px 0px rgba(15,23,42,0)";
+            const borderClass = isMark
               ? "border-emerald-400 bg-emerald-500/15 text-emerald-600"
-              : isActive || isMarking
+              : isSwap || isCompare
                 ? "border-sky-400 bg-sky-50 text-slate-900"
                 : "border-slate-300 bg-slate-50 text-slate-700";
 
@@ -200,16 +141,11 @@ export default function BubbleSortVisualizer() {
                 key={`${value}-${index}`}
                 layout
                 transition={{
-                  layout: { type: "spring", stiffness: 380, damping: 30 },
-                  y: { type: "spring", stiffness: 320, damping: 24 },
-                  x: { type: "spring", stiffness: 220, damping: 26 },
+                  layout: { type: "spring", stiffness: 320, damping: 30 },
+                  y: { type: "spring", stiffness: 320, damping: 26 },
+                  scale: { type: "spring", stiffness: 280, damping: 22 },
                 }}
-                animate={{
-                  y: elevation,
-                  x: horizontalOffset,
-                  scale,
-                  boxShadow: glow,
-                }}
+                animate={{ y: elevation, scale, boxShadow: glow }}
                 className={`flex h-40 w-28 items-center justify-center rounded-[2.75rem] border-4 text-7xl font-black tracking-wide ${borderClass}`}
               >
                 {value}
@@ -218,11 +154,7 @@ export default function BubbleSortVisualizer() {
           })}
         </div>
 
-        <div
-          className={`min-h-[2rem] text-center text-base font-semibold uppercase tracking-[0.4em] ${
-            announcement.tone === "alert" ? "text-rose-500" : "text-slate-500"
-          }`}
-        >
+        <div className="min-h-[2rem] text-center text-base font-semibold uppercase tracking-[0.4em] text-slate-500">
           {announcement.text}
         </div>
 
@@ -230,7 +162,7 @@ export default function BubbleSortVisualizer() {
           <button
             type="button"
             onClick={toggle}
-            className="inline-flex items-center gap-2 rounded-full bg-sky-500 px-6 py-3 text-sm font-semibold uppercase tracking-[0.35em] text-white transition hover:bg-sky-400"
+            className="inline-flex items-center gap-2 rounded-full bg-sky-500 px-7 py-3.5 text-base font-semibold uppercase tracking-[0.3em] text-white transition hover:bg-sky-400"
           >
             {isRunning ? <Pause size={18} /> : <Play size={18} />}
             {completed ? "Restart" : isRunning ? "Pause" : "Start"}
@@ -238,23 +170,19 @@ export default function BubbleSortVisualizer() {
           <button
             type="button"
             onClick={reset}
-            className="inline-flex items-center gap-2 rounded-full border border-slate-400 px-5 py-3 text-sm font-semibold uppercase tracking-[0.35em] text-slate-600 transition hover:border-slate-600 hover:text-slate-900"
+            className="inline-flex items-center gap-2 rounded-full border border-slate-400 px-6 py-3.5 text-base font-semibold uppercase tracking-[0.3em] text-slate-600 transition hover:border-slate-600 hover:text-slate-900"
             disabled={isRunning && !completed}
           >
             <RotateCcw size={18} />
             Reset
           </button>
         </div>
-
-        <div className="mt-4 text-center text-2xl font-semibold text-slate-700">
-          Time Complexity: <span className="text-blue-600">O(n²)</span> &nbsp;|&nbsp; Space: <span className="text-blue-600">O(1)</span>
-        </div>
-      </motion.div>
+      </div>
     </div>
   );
 }
 
-function generateBubbleSteps(arr) {
+function generateSteps(arr) {
   const steps = [];
   const copy = [...arr];
   const n = copy.length;
@@ -264,45 +192,15 @@ function generateBubbleSteps(arr) {
       const a = copy[j];
       const b = copy[j + 1];
       const needsSwap = a > b;
-
-      steps.push({ type: "compare", i: j, j: j + 1, a, b });
-
+      steps.push({ type: "compare", i: j, j: j + 1, a, b, needsSwap });
       if (needsSwap) {
-        steps.push({ type: "lift", i: j, j: j + 1, a, b });
         steps.push({ type: "swap", i: j, j: j + 1, a, b });
         [copy[j], copy[j + 1]] = [copy[j + 1], copy[j]];
-        steps.push({ type: "drop", i: j, j: j + 1, a: copy[j], b: copy[j + 1] });
-      } else {
-        steps.push({ type: "settle", i: j, j: j + 1, a, b });
       }
     }
     steps.push({ type: "mark", index: n - i - 1, value: copy[n - i - 1] });
   }
-
   steps.push({ type: "mark", index: 0, value: copy[0] });
-  steps.push({ type: "complete", values: [...copy] });
+  steps.push({ type: "spotlight" });
   return steps;
-}
-
-function getBubbleSpotlight(step) {
-  if (!step) return null;
-
-  switch (step.type) {
-    case "compare":
-      return { values: [step.a, step.b], text: `Compare ${step.a} and ${step.b}` };
-    case "lift":
-      return { values: [step.a, step.b], text: "Lift them up to swap" };
-    case "swap":
-      return { values: [step.a, step.b], text: "Swap their positions" };
-    case "drop":
-      return { values: [step.a, step.b], text: "Drop them into their new spots" };
-    case "settle":
-      return { values: [step.a, step.b], text: "Already in order keep them" };
-    case "mark":
-      return { values: [step.value], text: `Lock ${step.value} into place` };
-    case "complete":
-      return { values: step.values ?? [], text: "Sorted! Bubble sort finished" };
-    default:
-      return { values: step.a !== undefined ? [step.a, step.b] : [], text: "Next step" };
-  }
 }
