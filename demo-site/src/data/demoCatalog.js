@@ -1,11 +1,10 @@
-// Update this catalog when you want to rename demos or reintroduce descriptions.
+// Update this catalog when you want to add, rename, or delete demos
 export const demoCatalog = [
     {
         id: "demo1",
         title: "Logic Gates",
         status: "available",
         path: "/logic-gates",
-        // Optional: add `tagline` or `description` keys when you want supporting copy.
     },
     {
         id: "demo2",

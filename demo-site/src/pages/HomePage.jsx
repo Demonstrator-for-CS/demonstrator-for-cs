@@ -96,7 +96,7 @@ export default function HomePage() {
                     size={200}
                     level="M"
                 />
-                <p className="text-sm text-center mt-3 text-gray-600 font-medium">Scan to interact</p>
+                <p className="text-2xl text-center mt-3 text-gray-600 font-medium">Scan to interact</p>
             </div>
 
             <div className="flex flex-col items-center justify-center w-full pt-12 pb-8">
