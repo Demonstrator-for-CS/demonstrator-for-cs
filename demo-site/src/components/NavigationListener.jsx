@@ -4,14 +4,13 @@ import { useServerState } from '@/hooks/useServerState.js';
 
 export default function NavigationListener() {
   const navigate = useNavigate();
-  const { command, consumeCommand } = useServerState();
+  const { state} = useServerState();
 
   useEffect(() => {
-    if (command && command.name === 'navigate_to_home') {
+    if (state.status === 'home') {
       navigate('/');
-      consumeCommand();
     }
-  }, [command, navigate, consumeCommand]);
+  }, [navigate, state.status]);
 
   return null;
 }

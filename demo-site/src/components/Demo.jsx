@@ -3,9 +3,9 @@ import { Play, Pause, ChevronLeft, ChevronRight } from 'lucide-react';
 import QRCode from 'react-qr-code';
 import { useServerState } from '@/hooks/useServerState';
 
-export default function Demo({ slides, slideDuration }) {
+export default function Demo({ slides}) {
     const [currentSlide, setCurrentSlide] = useState(0);
-    const [isPaused, setIsPaused] = useState(false);
+    const [, setIsPaused] = useState(false);
     const { state} = useServerState();
     const lastServerSlide = useRef(null);
 
@@ -23,15 +23,9 @@ export default function Demo({ slides, slideDuration }) {
 
     // Sync with server state only when controller is active
     useEffect(() => {
-        const controllerActive = state.status === 'playing' || state.status === 'paused';
+        const controllerActive = state.status === 'playing' || state.status === 'paused' || state.status === 'sorting' || state.status === 'home';
         if (controllerActive && typeof state.current_slide === 'number') {
             const next = clampIndex(state.current_slide);
-            // Prevent wrap-to-start when we’re at the end of the deck and controller sends 0
-            const nearEnd = currentSlide >= slides.length - 2;
-            const wrapBack = next < currentSlide && next < 2;
-            if (nearEnd && wrapBack) {
-                return;
-            }
             if (next !== lastServerSlide.current) {
                 lastServerSlide.current = next;
                 setCurrentSlide(next);
@@ -41,10 +35,15 @@ export default function Demo({ slides, slideDuration }) {
             setIsPaused(false);
         } else if (state.status === 'paused') {
             setIsPaused(true);
+        } else if (state.status === 'home') {
+            // Reset to first slide when navigating home
+            setCurrentSlide(0);
+            lastServerSlide.current = 0;
+            setIsPaused(true);
         }
     }, [state.current_slide, state.status, clampIndex]);
 
-    // Removed auto-play functionality - manual interaction only
+    // Removed autoplay functionality - manual interaction only
 
     const goToNext = () => {
         if (currentSlide < slides.length - 1) {
