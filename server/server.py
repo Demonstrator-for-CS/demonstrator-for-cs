@@ -4,6 +4,7 @@ from flask_socketio import SocketIO, emit
 import logging
 import os
 from datetime import datetime
+from threading import Timer
 from database import log_interaction, get_interaction_logs, clear_old_logs
 from dotenv import load_dotenv
 
@@ -65,6 +66,41 @@ demo_state = {
     'controller_input': {}
 }
 
+# Controller connection tracking
+controller_connection = {
+    'last_input_time': None,
+    'is_connected': False,
+    'disconnect_timer': None
+}
+
+# 2 minutes in seconds
+CONTROLLER_TIMEOUT = 120
+
+def log_controller_disconnect():
+    """Log controller disconnect to Supabase after timeout"""
+    global controller_connection
+    try:
+        timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        logger.info(f'Controller disconnected (timeout) at {timestamp}')
+        log_interaction('disconnect', f'Controller disconnected at {timestamp}')
+        controller_connection['is_connected'] = False
+        controller_connection['disconnect_timer'] = None
+        reset_demo()
+    except Exception as e:
+        logger.error(f'Error logging controller disconnect: {e}')
+
+def reset_controller_timeout():
+    """Reset the disconnect timer when new input is received"""
+    global controller_connection
+
+    # Cancel existing timer if present
+    if controller_connection['disconnect_timer']:
+        controller_connection['disconnect_timer'].cancel()
+
+    # Start new timer
+    controller_connection['disconnect_timer'] = Timer(CONTROLLER_TIMEOUT, log_controller_disconnect)
+    controller_connection['disconnect_timer'].start()
+
 # Error handlers
 @app.errorhandler(400)
 def bad_request(e):
@@ -89,12 +125,27 @@ def handle_exception(e):
 
 @app.route('/api/controller/input', methods=['POST'])
 def controller_input():
+    global controller_connection
     try:
         data = request.json
         if not data:
             return jsonify({'success': False, 'error': 'No data provided'}), 400
 
         logger.info(f"Controller input received: {data}")
+
+        # Track controller connection
+        current_time = datetime.now()
+
+        # Log connection if controller was not previously connected
+        if not controller_connection['is_connected']:
+            timestamp = current_time.strftime('%Y-%m-%d %H:%M:%S')
+            logger.info(f'Controller connected at {timestamp}')
+            log_interaction('connect', f'Controller connected at {timestamp}')
+            controller_connection['is_connected'] = True
+
+        # Update last input time and reset disconnect timer
+        controller_connection['last_input_time'] = current_time
+        reset_controller_timeout()
 
         action = data.get('action')
         payload = data.get('payload', {})
@@ -107,43 +158,48 @@ def controller_input():
                 'payload': payload,
                 'timestamp': data.get('timestamp')
             }
-            if direction == 'next' and demo_state['current_demo'] == 'logic-gates' and demo_state['current_slide'] == 7:
-                demo_state['current_slide'] = 0
-            elif direction == 'next' and demo_state['current_demo'] == 'searching-sorting' and demo_state['current_slide'] == 30:
-                demo_state['current_slide'] = 0
-            elif direction == 'next':
-                demo_state['current_slide'] += 1
-            elif direction == 'prev':
-                demo_state['current_slide'] = max(0, demo_state['current_slide'] - 1)
-            elif direction == 'select':
-                demo_state['status'] = 'playing'
 
-        elif action == 'play':
+            match direction:
+                case 'next':
+                    if demo_state['current_demo'] == 'logic-gates' and demo_state['current_slide'] == 7:
+                        demo_state['current_slide'] = 0
+                    elif demo_state['current_demo'] == 'searching-sorting' and demo_state['current_slide'] == 29:
+                        demo_state['current_slide'] = 0
+                        demo_state['status'] = 'playing' if demo_state['status'] == 'sorting' else demo_state['status']
+                    else:
+                        demo_state['current_slide'] += 1
+                        demo_state['status'] = 'idle' if demo_state['status'] == 'home' else demo_state['status']
+                case 'prev':
+                    if demo_state['current_demo'] == 'logic-gates' and demo_state['current_slide'] == 0:
+                        demo_state['current_slide'] = 7
+                    elif demo_state['current_demo'] == 'searching-sorting' and demo_state['current_slide'] == 0:
+                        demo_state['current_slide'] = 29
+                        demo_state['status'] = 'playing' if demo_state['status'] == 'sorting' else demo_state['status']
+                    else:
+                        demo_state['current_slide'] = max(0, demo_state['current_slide'] - 1)
+                        demo_state['status'] = 'idle' if demo_state['status'] == 'home' else demo_state['status']
+
+        elif action == 'reset_animation':
             demo_state['status'] = 'playing'
 
-        elif action == 'pause':
-            demo_state['status'] = 'paused'
-
-        elif action == 'reset':
-            demo_state['current_slide'] = 0
-            demo_state['status'] = 'idle'
+        elif action == 'start_sorting':
+            demo_state['status'] = 'sorting'
 
         elif action == 'set_demo':
             demo_state['current_demo'] = payload.get('demo')
             demo_state['current_slide'] = 0
-            demo_state['status'] = 'idle'
+            demo_state['status'] = 'playing'
 
         elif action == 'logic_gates_input':
             demo_state['controller_input'] = payload
 
-        elif action == 'navigate_home':
+        elif action == 'navigate_to_home':
             # Reset demo state and navigate to home
             demo_state['current_demo'] = None
             demo_state['current_slide'] = 0
-            demo_state['status'] = 'idle'
+            demo_state['status'] = 'home'
             demo_state['controller_input'] = {}
             # Emit navigate_to_home event to trigger navigation on demo-site
-            socketio.emit('navigate_to_home', {'timestamp': data.get('timestamp')}, namespace='/')
 
         socketio.emit('state_update', demo_state, namespace='/')
 
@@ -157,23 +213,6 @@ def controller_input():
 def get_status():
     return jsonify(demo_state)
 
-
-@app.route('/api/start', methods=['POST'])
-def start_demo():
-    logger.info("Start demo requested")
-    demo_state['status'] = 'playing'
-    socketio.emit('state_update', demo_state, namespace='/')
-    return jsonify({'success': True, 'state': demo_state})
-
-
-@app.route('/api/pause', methods=['POST'])
-def pause_demo():
-    logger.info("Pause demo requested")
-    demo_state['status'] = 'paused'
-    socketio.emit('state_update', demo_state, namespace='/')
-    return jsonify({'success': True, 'state': demo_state})
-
-
 @app.route('/api/reset', methods=['POST'])
 def reset_demo():
     logger.info("Reset demo requested")
@@ -183,16 +222,10 @@ def reset_demo():
     socketio.emit('state_update', demo_state, namespace='/')
     return jsonify({'success': True, 'state': demo_state})
 
-
 @socketio.on('connect')
 def handle_connect():
     try:
-        timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        logger.info(f'Client connected at {timestamp}')
-
-        # Log connection to Supabase
-        log_interaction('connect', f'Client connected at {timestamp}')
-
+        logger.info('Demo-site socket connected')
         emit('state_update', demo_state)
     except Exception as e:
         logger.error(f'Error handling connect: {e}')
@@ -201,11 +234,7 @@ def handle_connect():
 @socketio.on('disconnect')
 def handle_disconnect():
     try:
-        timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        logger.info(f'Client disconnected at {timestamp}')
-
-        # Log disconnection to Supabase
-        log_interaction('disconnect', f'Client disconnected at {timestamp}')
+        logger.info('Demo-site socket disconnected')
     except Exception as e:
         logger.error(f'Error handling disconnect: {e}')
 
@@ -220,7 +249,6 @@ def handle_state_request():
 @app.route('/health', methods=['GET'])
 def health_check():
     return jsonify({'status': 'healthy'})
-
 
 @app.route('/api/interaction-log', methods=['GET'])
 def get_interaction_log():
@@ -240,7 +268,6 @@ def get_interaction_log():
             'error': str(e),
             'log': []
         }), 500
-
 
 @app.route('/api/interaction-log/cleanup', methods=['POST'])
 def cleanup_interaction_logs():
@@ -273,10 +300,9 @@ def cleanup_interaction_logs():
 
 if __name__ == '__main__':
     logger.info("Starting Flask server on http://0.0.0.0:5000")
-    socketio.run(app, host='0.0.0.0', port=5000, debug=True)
+    socketio.run(app, host='0.0.0.0', port=5000, debug=True, allow_unsafe_werkzeug=True)
 
 ##TODO: Get user input to work with Adder
-##TODO: Test Render server interaction more
 
 ##TODO: Flash Pi With Newest Stuff
 ##TODO: Make Pi Script to Have it Autoboot the demo

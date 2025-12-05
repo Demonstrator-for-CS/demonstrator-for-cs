@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react'
 import '@/css/App.css'
-import { navigate, pause, setDemo, navigateHome } from '@/services/api'
-import { startSorting } from '../services/api';
+import { navigate, pause, setDemo, navigateHome, reset, startSorting } from '@/services/api'
 
 function App() {
   const [inputStart, setInputStart] = useState(false);

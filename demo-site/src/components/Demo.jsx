@@ -3,9 +3,9 @@ import { Play, Pause, ChevronLeft, ChevronRight } from 'lucide-react';
 import QRCode from 'react-qr-code';
 import { useServerState } from '@/hooks/useServerState';
 
-export default function Demo({ slides, slideDuration }) {
+export default function Demo({ slides}) {
     const [currentSlide, setCurrentSlide] = useState(0);
-    const [isPaused, setIsPaused] = useState(false);
+    const [, setIsPaused] = useState(false);
     const { state} = useServerState();
     const lastServerSlide = useRef(null);
 
@@ -44,7 +44,7 @@ export default function Demo({ slides, slideDuration }) {
         }
     }, [state.current_slide, state.status, clampIndex]);
 
-    // Removed auto-play functionality - manual interaction only
+    // Removed autoplay functionality - manual interaction only
 
     const goToNext = () => {
         if (currentSlide < slides.length - 1) {

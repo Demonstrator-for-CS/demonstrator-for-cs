@@ -34,7 +34,7 @@ export const pause = () => {
 };
 
 export const reset = () => {
-  sendControllerInput('reset');
+  sendControllerInput('reset_animation');
 };
 
 export const startSorting = () => {
@@ -50,7 +50,7 @@ export const sendLogicGatesInput = (input) => {
 };
 
 export const navigateHome = () => {
-  sendControllerInput('navigate_home');
+  sendControllerInput('navigate_to_home');
   // Also navigate the controller itself to home
   window.location.href = '/';
 };
