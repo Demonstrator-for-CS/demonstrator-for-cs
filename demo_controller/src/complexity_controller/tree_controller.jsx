@@ -4,8 +4,8 @@ import { navigate, pause, setDemo, navigateHome } from '@/services/api'
 import { startSorting } from '../services/api';
 
 function App() {
-  const [count, setCount] = useState(0)
-  const [background, setBackground] = useState('#ffffff');
+  const [inputStart, setInputStart] = useState(false);
+  const [inputReset, setInputReset] = useState(false);
 
   // Set demo on mount
   useEffect(() => {
