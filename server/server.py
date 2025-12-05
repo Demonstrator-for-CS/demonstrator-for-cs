@@ -163,7 +163,7 @@ def controller_input():
                 case 'next':
                     if demo_state['current_demo'] == 'logic-gates' and demo_state['current_slide'] == 7:
                         demo_state['current_slide'] = 0
-                    elif demo_state['current_demo'] == 'searching-sorting' and demo_state['current_slide'] == 29:
+                    elif demo_state['current_demo'] == 'searching-sorting' and demo_state['current_slide'] == 31:
                         demo_state['current_slide'] = 0
                         demo_state['status'] = 'playing' if demo_state['status'] == 'sorting' else demo_state['status']
                     else:
@@ -173,7 +173,7 @@ def controller_input():
                     if demo_state['current_demo'] == 'logic-gates' and demo_state['current_slide'] == 0:
                         demo_state['current_slide'] = 7
                     elif demo_state['current_demo'] == 'searching-sorting' and demo_state['current_slide'] == 0:
-                        demo_state['current_slide'] = 29
+                        demo_state['current_slide'] = 31
                         demo_state['status'] = 'playing' if demo_state['status'] == 'sorting' else demo_state['status']
                     else:
                         demo_state['current_slide'] = max(0, demo_state['current_slide'] - 1)
