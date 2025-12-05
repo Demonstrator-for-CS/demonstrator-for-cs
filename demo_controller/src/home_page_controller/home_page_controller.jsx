@@ -38,19 +38,18 @@ function App() {
     <>
       <div>
       </div>
-      <h3>Select Demo</h3>
+
       <div className="card">
+        <h3 style={{fontsize: '60px'}}>Select Demo</h3>
         <div className="directions">
           <button className = "navigate-button" id='left-navigate' onClick={handlePrev}> &#8656; </button>
           <button className = "navigate-button" id='right-navigate' onClick={handleNext} > &#8658; </button>
         </div>
         <button className = "navigate-button" id='navigate-select' onClick={handleSelect}> Select Demo </button>
-      </div>
-      <p className="read-the-docs" id = 'instructions'>
+        <p className="read-the-docs" id = 'instructions'>
         Use these buttons to navigate through the demonstrator!
       </p>
-      <p className="read-the-docs">
-      </p>
+      </div>
     </>
   )
 }
