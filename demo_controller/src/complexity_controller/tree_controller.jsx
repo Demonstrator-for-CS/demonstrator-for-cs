@@ -26,7 +26,7 @@ function App() {
             &#8658;
           </button>
         </div>
-        <p id = 'num-pad-title'>Searching Algorithm Controls</p>
+        <p id = 'sorting-title'>Searching Algorithm Controls</p>
         <div className="sorting-controls-container" style = {{marginTop: '15px'}}>
           <button onClick={() => startSorting()} className = 'sorting-controls' id='start_sorting'>
             Start

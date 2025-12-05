@@ -75,14 +75,14 @@ button:focus-visible {
 
 #left-navigate {
   height: 220px;
-  width: 120px;
+  width: 42%;
   font-size: 30px;
   order: 1;
 }
 
 #right-navigate {
   height: 220px;
-  width: 120px;
+  width: 42%;
   font-size: 30px;
   order: 1;
 }
@@ -90,7 +90,7 @@ button:focus-visible {
 #navigate-select {
   height: 80px;
   font-size: 17px;
-  width: 260px;
+  width: 94%;
   margin-top: 1rem;
   margin-bottom: 10px;
 }
@@ -126,6 +126,8 @@ button:focus-visible {
   margin: auto;
 }*/
 
+/* Code that applies to both Logic Gates and Tree Demo controllers */
+
 .directions {
   display: flex;
   justify-content: center;
@@ -156,13 +158,22 @@ button:focus-visible {
   height: 60px;
   width: 25%;
 }
-/*
-#pause_button {
-  margin-top: 5px;
-  margin-left: 10px;
-  background-color: grey;
-  color: white;
-}*/
+
+#instructions {
+  color: rgb(0, 119, 255);
+  font: sans-serif;
+  margin-top: 1.5rem;
+}
+
+.options-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+/* Logic Gates Controller Specific CSS */
 
 #logic-gates-controls-title {
   margin-top: 1rem;
@@ -171,19 +182,6 @@ button:focus-visible {
 }
 
 .logic-gates-inputs-container {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1rem;
-  margin-top: 1rem;
-}
-
-#num-pad-title {
-  margin-top: 1rem;
-  font-size: 1.2rem;
-  color: rgb(0, 119, 255);
-}
-
-.sorting-controls-container {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 1rem;
@@ -202,16 +200,17 @@ button:focus-visible {
   color: white;
 }
 
-#instructions {
+/* Sorting Controller Specific CSS */
+
+#sorting-title {
+  margin-top: 1rem;
+  font-size: 1.2rem;
   color: rgb(0, 119, 255);
-  font: sans-serif;
-  margin-top: 1.5rem;
 }
 
-.options-container {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
+.sorting-controls-container {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
   gap: 1rem;
   margin-top: 1rem;
 }
@@ -228,18 +227,7 @@ button:focus-visible {
   padding: 0.5rem 1rem;
   border-radius: 0.5rem;
 }
-/*
-.sorting-card {
-  margin-top: 1rem;
-  padding: 1.5rem;
-  text-align: center;
-  background-color: rgba(255, 255, 255);
-  border-radius: 1rem;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  width: 350px;
-  margin: auto;
-}
-*/
+
 .play-restart-container {
   display: flex;
   align-items: center;
@@ -255,24 +243,7 @@ button:focus-visible {
   color: white;
   padding: 0.5rem 1rem;
 }
-/*
-#start_sorting {
-  background-color: rgb(0, 119, 255);
-  color: white;
-  margin-right: 20px;
-  border-radius: 0.5rem;
-  width: 100px;
-  height: 60px;
-}
 
-#reset_sorting {
-  background-color: rgb(0, 119, 255);
-  color: white;
-  border-radius: 0.5rem;
-  width: 100px;
-  height: 60px;
-}
-*/
 .sorting-controls {
   padding: 1rem 1.5rem;
   width: 90%;
@@ -283,13 +254,6 @@ button:focus-visible {
   font-size: 1.25em;
   background-color: rgb(0, 119, 255);
   color: white;
-}
-
-#play-button, #restart-button {
-  background-color: rgb(0, 119, 255);
-  color: white;
-  padding: 0.5rem 1rem;
-  border-radius: 0.5rem;
 }
 
 /* fit on small mobile screens */
