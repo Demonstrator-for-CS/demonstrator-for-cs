@@ -1,6 +1,7 @@
 ﻿import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Pause, Play, RotateCcw } from "lucide-react";
+import { useServerState } from "../hooks/useServerState";
 
 const INITIAL_VALUES = [5, 4, 3, 2, 1];
 const STEP_DURATION = 2800;
@@ -10,6 +11,7 @@ const CARD_TRAVEL = 120;
 const STAGE_LIFT = -110;
 
 export default function MergeSortVisualizer() {
+  const { state } = useServerState();
   const operations = useMemo(() => generateMergeOperations([...INITIAL_VALUES]), []);
   const [values, setValues] = useState(() => [...INITIAL_VALUES]);
   const [stepIndex, setStepIndex] = useState(0);
@@ -25,6 +27,7 @@ export default function MergeSortVisualizer() {
 
   const timersRef = useRef([]);
   const valuesRef = useRef(values);
+  const prevStatusRef = useRef(state.status);
 
   const currentOp = operations[stepIndex] ?? null;
   const performing = phaseStage === "action" && currentOp;
@@ -55,6 +58,30 @@ export default function MergeSortVisualizer() {
     setFinalizedSlots([]);
     setAnnouncement({ text: "Tap start to watch merge sort unfold", tone: "calm" });
   }, [clearTimers]);
+
+  const toggle = useCallback(() => {
+    if (completed) {
+      reset();
+      setIsRunning(true);
+      return;
+    }
+    setIsRunning((prev) => !prev);
+  }, [completed, reset]);
+
+  // Listen for server commands
+  useEffect(() => {
+    // Handle play command from server
+    if (state.status === 'sorting' && prevStatusRef.current !== 'sorting' && !isRunning) {
+      toggle();
+    }
+
+    // Handle reset command from server (when current_slide goes to 0 and status is idle)
+    if (state.status === 'playing' && (isRunning || completed)) {
+      reset();
+    }
+
+    prevStatusRef.current = state.status;
+  }, [state.status, state.current_slide, isRunning, completed, toggle, reset]);
 
   useEffect(() => {
     clearTimers();
@@ -189,15 +216,6 @@ export default function MergeSortVisualizer() {
 
     return () => clearTimers();
   }, [isRunning, stepIndex, operations, phaseStage, clearTimers, completed]);
-
-  const toggle = () => {
-    if (completed) {
-      reset();
-      setIsRunning(true);
-      return;
-    }
-    setIsRunning((prev) => !prev);
-  };
 
   return (
     <div className="relative w-full rounded-[32px] border border-slate-200 bg-white px-16 pt-36 pb-16 text-slate-900 shadow-2xl overflow-hidden min-h-[40rem]">
@@ -342,7 +360,7 @@ export default function MergeSortVisualizer() {
           {announcement.text}
         </div>
 
-        <div className="flex flex-wrap itemscenter justify-center gap-4">
+        <div className="hidden flex-wrap itemscenter justify-center gap-4">
           <button type="button" onClick={toggle} className="inline-flex items-center gap-2 rounded-full bg-sky-500 px-6 py-3 text-sm font-semibold uppercase tracking-[0.35em] text-white transition hover:bg-sky-400">
             {isRunning ? <Pause size={18} /> : <Play size={18} />}
             {completed ? "Restart" : isRunning ? "Pause" : "Start"}

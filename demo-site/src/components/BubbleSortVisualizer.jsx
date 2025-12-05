@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Pause, Play, RotateCcw } from "lucide-react";
+import { useServerState } from "../hooks/useServerState";
 
 const INITIAL_VALUES = [5, 4, 3, 2, 1];
 const STEP_DURATION = 2800;
@@ -9,6 +10,7 @@ const SPOTLIGHT_DURATION = 2000;
 const CARD_SWAP_OFFSET = 140;
 
 export default function BubbleSortVisualizer() {
+  const { state } = useServerState();
   const [values, setValues] = useState(() => [...INITIAL_VALUES]);
   const [stepIndex, setStepIndex] = useState(0);
   const [phaseStage, setPhaseStage] = useState("spotlight");
@@ -22,6 +24,7 @@ export default function BubbleSortVisualizer() {
   const steps = useMemo(() => generateBubbleSteps(INITIAL_VALUES), []);
   const timersRef = useRef([]);
   const swapStateRef = useRef({ stepIndex: -1, performed: false });
+  const prevStatusRef = useRef(state.status);
 
   const currentStep = steps[stepIndex] ?? null;
   const performing = phaseStage === "action" && currentStep;
@@ -52,6 +55,30 @@ export default function BubbleSortVisualizer() {
     setSortedIndices([]);
     swapStateRef.current = { stepIndex: -1, performed: false };
   }, [clearTimers]);
+
+  const toggle = useCallback(() => {
+    if (completed) {
+      reset();
+      setIsRunning(true);
+      return;
+    }
+    setIsRunning((prev) => !prev);
+  }, [completed, reset]);
+
+  // Listen for server commands
+  useEffect(() => {
+    // Handle play command from server
+    if (state.status === 'sorting' && prevStatusRef.current !== 'sorting' && !isRunning) {
+      toggle();
+    }
+
+    // Handle reset command from server
+    if (state.status === 'playing' && (isRunning || completed)) {
+      reset();
+    }
+
+    prevStatusRef.current = state.status;
+  }, [state.status, isRunning, completed, toggle, reset]);
 
   useEffect(() => {
     clearTimers();
@@ -146,15 +173,6 @@ export default function BubbleSortVisualizer() {
 
     return () => clearTimers();
   }, [isRunning, stepIndex, steps, phaseStage, clearTimers, completed]);
-
-  const toggle = () => {
-    if (completed) {
-      reset();
-      setIsRunning(true);
-      return;
-    }
-    setIsRunning((prev) => !prev);
-  };
 
   return (
     <div className="relative w-full rounded-[32px] border border-slate-200 bg-white px-16 pt-36 pb-16 text-slate-900 shadow-2xl overflow-hidden min-h-[40rem]">
@@ -269,7 +287,7 @@ export default function BubbleSortVisualizer() {
           {announcement.text}
         </div>
 
-        <div className="flex flex-wrap items-center justify-center gap-4">
+        <div className="hidden flex-wrap items-center justify-center gap-4">
           <button
             type="button"
             onClick={toggle}
@@ -336,7 +354,7 @@ function getBubbleSpotlight(step) {
     case "drop":
       return { values: [step.a, step.b], text: "Drop them into their new spots" };
     case "settle":
-      return { values: [step.a, step.b], text: "Already in order ¡ª keep them" };
+      return { values: [step.a, step.b], text: "Already in order ï¿½ï¿½ keep them" };
     case "mark":
       return { values: [step.value], text: `Lock ${step.value} into place` };
     case "complete":
