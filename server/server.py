@@ -18,6 +18,7 @@ class Config:
     CORS_ORIGINS = os.environ.get('CORS_ORIGINS', '*').split(',')
     LOG_LEVEL = os.environ.get('LOG_LEVEL', 'INFO')
 
+
 # Initialize Flask app
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -163,7 +164,7 @@ def controller_input():
                 case 'next':
                     if demo_state['current_demo'] == 'logic-gates' and demo_state['current_slide'] == 7:
                         demo_state['current_slide'] = 0
-                    elif demo_state['current_demo'] == 'searching-sorting' and demo_state['current_slide'] == 31:
+                    elif demo_state['current_demo'] == 'searching-sorting' and demo_state['current_slide'] == 33:
                         demo_state['current_slide'] = 0
                         demo_state['status'] = 'playing' if demo_state['status'] == 'sorting' else demo_state['status']
                     else:
@@ -173,7 +174,7 @@ def controller_input():
                     if demo_state['current_demo'] == 'logic-gates' and demo_state['current_slide'] == 0:
                         demo_state['current_slide'] = 7
                     elif demo_state['current_demo'] == 'searching-sorting' and demo_state['current_slide'] == 0:
-                        demo_state['current_slide'] = 31
+                        demo_state['current_slide'] = 33
                         demo_state['status'] = 'playing' if demo_state['status'] == 'sorting' else demo_state['status']
                     else:
                         demo_state['current_slide'] = max(0, demo_state['current_slide'] - 1)
@@ -298,7 +299,7 @@ def cleanup_interaction_logs():
 
 if __name__ == '__main__':
     logger.info("Starting Flask server on http://0.0.0.0:5000")
-    socketio.run(app, host='0.0.0.0', port=5000, debug=True, allow_unsafe_werkzeug=True)
+    socketio.run(app, host='0.0.0.0', port=5000, debug=False)
 
 ##TODO: Get user input to work with Adder
 
