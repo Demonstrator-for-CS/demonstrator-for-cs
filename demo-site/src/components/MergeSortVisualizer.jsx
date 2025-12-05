@@ -1,4 +1,4 @@
-﻿import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Pause, Play, RotateCcw } from "lucide-react";
 import { useServerState } from "../hooks/useServerState";
@@ -133,11 +133,6 @@ export default function MergeSortVisualizer() {
       setAnnouncement({ text: `Place ${op.value} into slot ${op.index + 1}`, tone: "alert" });
       const displacedValue = valuesRef.current[op.index];
       setWriteContext({ source: writeSource, target: op.index, value: op.value, displacedValue, inserted: false });
-      setValues((prev) => {
-        const next = [...prev];
-        next[op.index] = op.value;
-        return next;
-      });
       setWriteOffsets({
         [writeSource]: {
           x: 0,
@@ -175,6 +170,11 @@ export default function MergeSortVisualizer() {
         setWriteContext((prev) => {
           if (!prev || prev.source !== writeSource) return prev;
           return { ...prev, inserted: true };
+        });
+        setValues((prev) => {
+          const next = [...prev];
+          next[op.index] = op.value;
+          return next;
         });
       }, duration * 0.8);
       timersRef.current.push(settleHandle);
@@ -238,7 +238,7 @@ export default function MergeSortVisualizer() {
                     animate={{ scale: 1, opacity: 1 }}
                     exit={{ scale: 0.85, opacity: 0 }}
                     transition={{ duration: 0.3 }}
-                    className="flex h-44 w-28 items-center justify-center rounded-[2.75rem] border-4 border-sky-400 bg-white text-6xl font-black text-slate-800 shadow-2xl sm:w-32"
+                    className="flex h-48 w-32 items-center justify-center rounded-[2.75rem] border-4 border-sky-400 bg-white text-7xl font-black text-slate-800 shadow-2xl sm:w-36"
                   >
                     {value}
                   </motion.div>
@@ -250,7 +250,7 @@ export default function MergeSortVisualizer() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 18 }}
               transition={{ duration: 0.25 }}
-              className="px-4 text-center text-3xl font-black uppercase tracking-[0.35em] text-rose-400 sm:text-4xl"
+              className="px-4 text-center text-4xl font-black uppercase tracking-[0.35em] text-rose-400 sm:text-4xl"
             >
               {spotlightInfo.text}
             </motion.div>
@@ -267,20 +267,21 @@ export default function MergeSortVisualizer() {
           {values.map((value, index) => {
             const isCompare = activePair.includes(index);
             const isMovingCard = activeWriteSource === index;
+            const showMovingCard = isMovingCard && writeContext && !writeContext.inserted;
             const isIncomingSlot = activeWriteTarget === index && writeContext && !writeContext.inserted;
             const stage = stageOffsets[index] || { x: 0, y: 0 };
             const travel = writeOffsets[index] || { x: 0, y: 0 };
-            const baseElevation = isMovingCard ? -30 : isCompare ? -20 : 0;
+            const baseElevation = showMovingCard ? -30 : isCompare ? -20 : 0;
             const finalY = baseElevation + stage.y + travel.y;
             const finalX = stage.x + travel.x;
-            const scale = isMovingCard ? 1.12 : isCompare ? 1.08 : 1;
+            const scale = showMovingCard ? 1.12 : isCompare ? 1.08 : 1;
             const isFinalized =
               finalizedSlots.includes(index) &&
-              !isMovingCard &&
+              !showMovingCard &&
               !(writeContext && writeContext.target === index && !writeContext.inserted);
             const glow = isFinalized
               ? "0px 0px 35px rgba(16,185,129,0.45)"
-              : isMovingCard
+              : showMovingCard
                 ? "0px 0px 55px rgba(14,165,233,0.45)"
                 : isCompare
                   ? "0px 0px 35px rgba(14,165,233,0.35)"
@@ -292,19 +293,40 @@ export default function MergeSortVisualizer() {
             const displacedValue = placeholderActive ? writeContext?.displacedValue : null;
             const borderClass = isFinalized
               ? "border-emerald-400 bg-emerald-500/15 text-emerald-600"
-              : isMovingCard
+              : showMovingCard
                 ? "border-sky-400 bg-sky-50 text-slate-900"
                 : placeholderActive
-                  ? "border-amber-400 bg-amber-50/40 text-slate-900"
+                  ? "border-transparent bg-transparent"
                   : isCompare
                     ? "border-sky-400 bg-sky-50 text-slate-900"
                     : "border-slate-300 bg-slate-50 text-slate-700";
 
             const displayValue = placeholderActive
               ? ""
-              : isMovingCard && writeContext
+              : showMovingCard && writeContext
                 ? writeContext.value
                 : value;
+
+            // hide the moving card once inserted so it doesn't sit on top of the slot
+            if (isMovingCard && writeContext && writeContext.inserted) {
+              return (
+                <div key={`slot-${index}`} className="flex flex-col items-center gap-3">
+                  <motion.div
+                    layout
+                    transition={{
+                      layout: { type: "spring", stiffness: 380, damping: 30 },
+                      y: { type: "spring", stiffness: 320, damping: 24 },
+                      x: { type: "spring", stiffness: 280, damping: 28 },
+                    }}
+                    animate={{ y: stage.y, x: stage.x, scale: 1, boxShadow: glow }}
+                    className={`relative flex h-40 w-28 items-center justify-center overflow-visible rounded-[2.75rem] border-4 text-7xl font-black tracking-wide ${isFinalized ? "border-emerald-400 bg-emerald-500/15 text-emerald-600" : "border-slate-300 bg-slate-50 text-slate-700"}`}
+                  >
+                    <span className="relative z-20">{value}</span>
+                  </motion.div>
+                  <span className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-400">Slot {index + 1}</span>
+                </div>
+              );
+            }
 
             return (
               <div key={`slot-${index}`} className="flex flex-col items-center gap-3">
@@ -316,7 +338,7 @@ export default function MergeSortVisualizer() {
                     x: { type: "spring", stiffness: 280, damping: 28 },
                   }}
                   animate={{ y: finalY, x: finalX, scale, boxShadow: glow }}
-                  className={`relative flex h-36 w-24 items-center justify-center overflow-visible rounded-[2.5rem] border-4 text-5xl font-black tracking-wide ${borderClass}`}
+                  className={`relative flex h-40 w-28 items-center justify-center overflow-visible rounded-[2.75rem] border-4 text-7xl font-black tracking-wide ${borderClass}`}
                 >
                   <AnimatePresence>
                     {placeholderActive && (
@@ -326,7 +348,7 @@ export default function MergeSortVisualizer() {
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.35 }}
-                        className="absolute inset-0 z-0 flex items-center justify-center rounded-[2.5rem] border-4 border-dashed border-amber-400 bg-amber-50/60"
+                        className="absolute inset-0 z-0 flex items-center justify-center rounded-[2.75rem] border-4 border-dashed border-amber-400 bg-amber-50/60"
                       />
                     )}
                   </AnimatePresence>
@@ -335,10 +357,10 @@ export default function MergeSortVisualizer() {
                       <motion.div
                         key={`displaced-${index}`}
                         initial={{ opacity: 0, y: 12 }}
-                        animate={{ opacity: 0.85, y: -12 }}
+                        animate={{ opacity: 0.85, y: -14 }}
                         exit={{ opacity: 0, y: -30 }}
                         transition={{ duration: 0.35 }}
-                        className="absolute left-1/2 top-0 z-10 flex h-16 w-16 -translate-x-1/2 -translate-y-full items-center justify-center rounded-3xl border-2 border-slate-300 bg-white text-3xl font-bold text-slate-400 shadow-lg"
+                        className="absolute left-1/2 top-0 z-10 flex h-16 w-16 -translate-x-1/2 -translate-y-full items-center justify-center rounded-3xl border-2 border-slate-300 bg-white text-4xl font-bold text-slate-400 shadow-lg"
                       >
                         {displacedValue}
                       </motion.div>
@@ -353,7 +375,7 @@ export default function MergeSortVisualizer() {
         </div>
 
         <div
-          className={`min-h-[1.5rem] text-center text-sm font-semibold uppercase tracking-[0.4em] ${
+          className={`min-h-[2rem] text-center text-base font-semibold uppercase tracking-[0.4em] ${
             announcement.tone === "alert" ? "text-rose-500" : "text-slate-500"
           }`}
         >
@@ -374,6 +396,10 @@ export default function MergeSortVisualizer() {
             <RotateCcw size={18} />
             Reset
           </button>
+        </div>
+
+        <div className="mt-4 text-center text-2xl font-semibold text-slate-700">
+          Time Complexity: <span className="text-blue-600">O(n log n)</span> &nbsp;|&nbsp; Space: <span className="text-blue-600">O(n)</span>
         </div>
       </motion.div>
     </div>
