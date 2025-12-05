@@ -16,18 +16,18 @@ function App() {
     <>
       <div className='controller-container'>
       </div>
-      <h3>Searching and Sorting</h3>
-      <div className="card">
+      <h3 style={{padding:'5px'}}>Searching and Sorting</h3>
+      <div className="sorting-card">
         <div className="directions">
           <button onClick={() => navigate('prev')} id='left'>
-            ←
+            &#8656;
           </button>
           <button onClick={() => navigate('next')} id = "right">
-            →
+            &#8658;
           </button>
         </div>
-
-        <div className="sorting-algorithms">
+        <p id = 'num-pad-title'>Searching Algorithm Controls</p>
+        <div className="sorting-algorithms" style = {{marginTop: '15px'}}>
           <button onClick={() => startSorting()} id='start_sorting'>
             Start
           </button>

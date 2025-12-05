@@ -28,18 +28,18 @@ function App() {
     <>
       <div>
       </div>
-      <h3>Logic Gates</h3>
-      <div className="card">
+      <h3 style={{padding: '5px'}}>Logic Gates</h3>
+      <div className="logic-gates-card">
         <div className="directions">
           <button onClick={() => navigate('prev')} id='left'>
-            ←
+            &#8656;
           </button>
           <button onClick={() => navigate('next')} id = "right">
-            →
+            &#8658;
           </button>
         </div>
-        <p id = 'num-pad-title'>Controls</p>
-        <div className="num-pad-container" style = {{marginTop: '20px'}}>
+        <p id = 'num-pad-title'>Logic Gates Controls</p>
+        <div className="num-pad-container" style = {{marginTop: '15px'}}>
           <button className = 'num-pad' onClick={handleInputA} style={{backgroundColor: inputA ? '#4CAF50' : '#f44336'}}>A</button>
           <button className = 'num-pad' onClick={handleInputB} style={{backgroundColor: inputB ? '#4CAF50' : '#f44336'}}>B</button>
         </div>
