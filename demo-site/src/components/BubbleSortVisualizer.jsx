@@ -3,9 +3,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Pause, Play, RotateCcw } from "lucide-react";
 
 const INITIAL_VALUES = [5, 4, 3, 2, 1];
-const COMPARE_DURATION = 1400;
-const SWAP_DURATION = 1400;
-const MARK_DURATION = 800;
+const COMPARE_DURATION = 1200;
+const SWAP_DURATION = 1200;
+const MARK_DURATION = 700;
 const SPOTLIGHT_DURATION = 800;
 
 export default function BubbleSortVisualizer() {

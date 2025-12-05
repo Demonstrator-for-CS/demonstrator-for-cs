@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { Pause, Play, RotateCcw } from "lucide-react";
 
 const INITIAL_VALUES = [5, 4, 3, 2, 1];
-const STEP_DURATION = 2800;
+const STEP_DURATION = 800;
 const PHASE_PORTION = 0.45;
 const SPOTLIGHT_DURATION = 2000;
 const CARD_SWAP_OFFSET = 140;

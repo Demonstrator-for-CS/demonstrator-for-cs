@@ -26,6 +26,12 @@ export default function Demo({ slides, slideDuration }) {
         const controllerActive = state.status === 'playing' || state.status === 'paused';
         if (controllerActive && typeof state.current_slide === 'number') {
             const next = clampIndex(state.current_slide);
+            // Prevent wrap-to-start when we’re at the end of the deck and controller sends 0
+            const nearEnd = currentSlide >= slides.length - 2;
+            const wrapBack = next < currentSlide && next < 2;
+            if (nearEnd && wrapBack) {
+                return;
+            }
             if (next !== lastServerSlide.current) {
                 lastServerSlide.current = next;
                 setCurrentSlide(next);

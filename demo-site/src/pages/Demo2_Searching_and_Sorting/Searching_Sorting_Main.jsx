@@ -54,5 +54,7 @@ export default function SearchingSorting() {
         })
         .sort((a, b) => (a.order - b.order) || a.id.localeCompare(b.id));
 
+    console.debug("Searching & Sorting slide order:", slides.map((s) => s.id));
+
     return <Demo slides={slides} slideDuration={10000} />;
 }
