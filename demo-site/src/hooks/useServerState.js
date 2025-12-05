@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { io } from 'socket.io-client';
 
-//const BACKEND = 'https://pitt-cs-demo-server.onrender.com';
-const BACKEND = 'http://localhost:5000';
+const BACKEND = 'https://pitt-cs-demo-server.onrender.com';
+//const BACKEND = 'http://localhost:5000';
 
 
 let socket = null;
@@ -17,7 +17,7 @@ let sharedCommand = null;
 let sharedIsConnected = false;
 const listeners = new Set();
 
-function notifyListeners() {
+export function notifyListeners() {
   listeners.forEach(listener => listener());
 }
 
@@ -60,7 +60,7 @@ export function useServerState() {
         }
 
         // Update shared state and notify all listeners
-        const { command, ...restOfState } = newState;
+        const {  ...restOfState } = newState;
         sharedState = {
           ...restOfState,
           controller_input: newState.controller_input ? { ...newState.controller_input } : {}
