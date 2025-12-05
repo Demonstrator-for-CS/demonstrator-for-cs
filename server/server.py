@@ -1,10 +1,9 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from flask_socketio import SocketIO, emit
+from flask_socketio import SocketIO, emit, join_room, leave_room # Added join_room, leave_room
 import logging
 import os
 from datetime import datetime
-from threading import Timer
 from database import log_interaction, get_interaction_logs, clear_old_logs
 from dotenv import load_dotenv
 
@@ -13,11 +12,12 @@ load_dotenv()
 
 # Configuration
 class Config:
-    SECRET_KEY = os.environ.get('SECRET_KEY')
+    SECRET_KEY = os.environ.get('SECRET_KEY', 'default-dev-secret-key') # Added default
     DEBUG = os.environ.get('FLASK_DEBUG', 'False').lower() == 'true'
-    # CORS_ORIGINS = os.environ.get('CORS_ORIGINS', '*').split(',')
     LOG_LEVEL = os.environ.get('LOG_LEVEL', 'INFO')
-    CORS_ORIGINS = '*'
+    # Use a secure list of origins in production, '*' for development
+    CORS_ORIGINS = os.environ.get('CORS_ORIGINS', '*').split(',')
+    #CORS_ORIGINS = '*'
 
 
 # Initialize Flask app
@@ -33,15 +33,16 @@ CORS(app, resources={
     }
 })
 
-# Initialize SocketIO with production settings
+# Initialize SocketIO with settings optimized for persistent connections
 socketio = SocketIO(
     app,
     cors_allowed_origins=Config.CORS_ORIGINS,
     async_mode='threading',
-    logger=False,
-    engineio_logger=False,
-    ping_timeout=60,
-    ping_interval=25
+    logger=True, # Set to True to see SocketIO pings/pongs and connection events
+    engineio_logger=True,
+    # These defaults ensure timely disconnect detection (Heartbeat Mechanism)
+    # ping_timeout=60,
+    # ping_interval=25
 )
 
 # Configure logging
@@ -57,8 +58,14 @@ def add_security_headers(response):
     response.headers['X-Content-Type-Options'] = 'nosniff'
     response.headers['X-Frame-Options'] = 'DENY'
     response.headers['X-XSS-Protection'] = '1; mode=block'
-    response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
+    # Only use Strict-Transport-Security if running over HTTPS
+    # response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
     return response
+
+# --- Global Demo State and Socket Tracking ---
+# We will track the current active SocketIO session (SID) for the controller
+# to ensure only one active controller is managed, and to associate the user
+# with the active demo.
 
 demo_state = {
     'status': 'idle',
@@ -68,42 +75,22 @@ demo_state = {
     'controller_input': {}
 }
 
-# Controller connection tracking
-controller_connection = {
-    'last_input_time': None,
-    'is_connected': False,
-    'disconnect_timer': None
-}
+active_controller_sid = None
+CONTROLLER_ROOM_PREFIX = 'demo_controller_'
 
-# 2 minutes in seconds
-CONTROLLER_TIMEOUT = 120
+def reset_demo():
+    """Reset the demo state."""
+    logger.info("Demo state reset.")
+    demo_state['current_slide'] = 0
+    demo_state['status'] = 'idle'
+    demo_state['controller_input'] = {}
+    demo_state['current_demo'] = None # Explicitly clear demo
+    socketio.emit('state_update', demo_state, namespace='/')
+    # Note: State updates to the local animation site are handled separately
+    # (e.g., via another socket connection not shown here).
 
-def log_controller_disconnect():
-    """Log controller disconnect to Supabase after timeout"""
-    global controller_connection
-    try:
-        timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        logger.info(f'Controller disconnected (timeout) at {timestamp}')
-        log_interaction('disconnect', f'Controller disconnected at {timestamp}')
-        controller_connection['is_connected'] = False
-        controller_connection['disconnect_timer'] = None
-        reset_demo()
-    except Exception as e:
-        logger.error(f'Error logging controller disconnect: {e}')
 
-def reset_controller_timeout():
-    """Reset the disconnect timer when new input is received"""
-    global controller_connection
-
-    # Cancel existing timer if present
-    if controller_connection['disconnect_timer']:
-        controller_connection['disconnect_timer'].cancel()
-
-    # Start new timer
-    controller_connection['disconnect_timer'] = Timer(CONTROLLER_TIMEOUT, log_controller_disconnect)
-    controller_connection['disconnect_timer'].start()
-
-# Error handlers
+# Error handlers (kept for completeness)
 @app.errorhandler(400)
 def bad_request(e):
     logger.error(f"Bad request: {e}")
@@ -124,34 +111,83 @@ def handle_exception(e):
     logger.exception(f"Unhandled exception: {e}")
     return jsonify({'success': False, 'error': 'An unexpected error occurred'}), 500
 
+# ----------------------------------------------------------------------
+# SOCKET.IO EVENT HANDLERS (for Controller and Animation Site)
+# ----------------------------------------------------------------------
 
-@app.route('/api/controller/input', methods=['POST'])
-def controller_input():
-    global controller_connection
+# --- 1. Connection/Disconnection Logging (Reliable) ---
+
+@socketio.on('connect')
+def handle_connect():
+    """Logs connection and tracks the active controller."""
+    global active_controller_sid
+
+    # We differentiate connections here: one for the controller, one for the animation site.
+    # We assume the initial connection is from the controller client.
+    # For a robust solution, the client should send an 'identify' message.
+
+    # If this is the first controller connecting, track it.
+    if active_controller_sid is None:
+        active_controller_sid = request.sid
+
+        timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        client_ip = request.remote_addr
+
+        logger.info(f"[LOG: CONTROLLER CONNECT] New controller connected. SID: {request.sid}, IP: {client_ip}")
+        # Log interaction to database
+        log_interaction('connect', f'Controller connected from {client_ip} (SID: {request.sid})')
+
+        # Send confirmation and current state
+        emit('server_message', {'data': f'Welcome, Controller {request.sid[:4]}...'})
+        emit('state_update', demo_state)
+    else:
+        # If a controller is already active, tell this new connection to wait or ignore it.
+        logger.warning(f"Secondary connection attempted (SID: {request.sid}). Active controller is {active_controller_sid}.")
+        emit('server_message', {'data': 'A controller is already active. This connection is auxiliary.'})
+
+
+@socketio.on('disconnect')
+def handle_disconnect():
+    """Logs disconnection (triggered by clean exit OR heartbeat timeout)."""
+    global active_controller_sid
+
+    session_id = request.sid
+    timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+    if session_id == active_controller_sid:
+        logger.info(f"[LOG: CONTROLLER DISCONNECT] Primary controller disconnected. SID: {session_id}")
+        # Log interaction to database
+        log_interaction('disconnect', f'Controller disconnected (SID: {session_id})')
+
+        # Clear active controller tracking and reset the demo state
+        active_controller_sid = None
+        reset_demo()
+    else:
+        logger.info(f"Auxiliary connection disconnected. SID: {session_id}")
+
+    # Remove the socket from all rooms it may have joined
+    # Note: SocketIO does this automatically on disconnect, but we clean up our own state.
+
+
+# --- 2. Controller Input Handler (Unified Event) ---
+
+@socketio.on('controller_input')
+def handle_controller_input(data):
+    """
+    Receives all control commands from the React client.
+    This replaces the old /api/controller/input POST route.
+    """
+    if request.sid != active_controller_sid:
+        logger.warning(f"Ignoring input from unauthorized SID: {request.sid}")
+        return
+
     try:
-        data = request.json
-        if not data:
-            return jsonify({'success': False, 'error': 'No data provided'}), 400
-
-        logger.info(f"Controller input received: {data}")
-
-        # Track controller connection
-        current_time = datetime.now()
-
-        # Log connection if controller was not previously connected
-        if not controller_connection['is_connected']:
-            timestamp = current_time.strftime('%Y-%m-%d %H:%M:%S')
-            logger.info(f'Controller connected at {timestamp}')
-            log_interaction('connect', f'Controller connected at {timestamp}')
-            controller_connection['is_connected'] = True
-
-        # Update last input time and reset disconnect timer
-        controller_connection['last_input_time'] = current_time
-        reset_controller_timeout()
-
         action = data.get('action')
         payload = data.get('payload', {})
 
+        logger.info(f"[LOG: INPUT] Received input -> Action: {action}, Payload: {payload}")
+
+        # Update demo_state based on action
         if action == 'navigate':
             direction = payload.get('direction')
             # Update controller_input so the frontend can react to navigation
@@ -190,7 +226,18 @@ def controller_input():
             demo_state['status'] = 'sorting'
 
         elif action == 'set_demo':
-            demo_state['current_demo'] = payload.get('demo')
+            new_demo = payload.get('demo')
+            # 1. Clean up from previous room if necessary
+            if demo_state['current_demo']:
+                leave_room(CONTROLLER_ROOM_PREFIX + demo_state['current_demo'])
+                logger.info(f"SID {request.sid} left room: {CONTROLLER_ROOM_PREFIX + demo_state['current_demo']}")
+
+            # 2. Join the new room
+            join_room(CONTROLLER_ROOM_PREFIX + new_demo)
+            logger.info(f"SID {request.sid} joined room: {CONTROLLER_ROOM_PREFIX + new_demo}")
+
+            # 3. Update state
+            demo_state['current_demo'] = new_demo
             demo_state['current_slide'] = 0
             demo_state['status'] = 'playing'
 
@@ -198,49 +245,49 @@ def controller_input():
             demo_state['controller_input'] = payload
 
         elif action == 'navigate_to_home':
+            # Clean up from current room
+            if demo_state['current_demo']:
+                leave_room(CONTROLLER_ROOM_PREFIX + demo_state['current_demo'])
+                logger.info(f"SID {request.sid} left room: {CONTROLLER_ROOM_PREFIX + demo_state['current_demo']}")
+
             demo_state['current_demo'] = None
             demo_state['current_slide'] = 0
             demo_state['status'] = 'home'
             demo_state['controller_input'] = {}
 
+        # Broadcast the updated state to all subscribed clients
         socketio.emit('state_update', demo_state, namespace='/')
 
-        return jsonify({'success': True, 'state': demo_state})
+        # Example of sending a specific state update to the Logic Gates controller room only:
+        # if action == 'logic_gates_input':
+        #    socketio.emit('logic_gates_state', {'output': compute_logic_output(payload)},
+        #                   room=CONTROLLER_ROOM_PREFIX + 'logic-gates')
+
+
     except Exception as e:
         logger.error(f"Error processing controller input: {e}")
-        return jsonify({'success': False, 'error': 'Failed to process input'}), 500
+        # Optionally send an error back to the client
+        emit('server_message', {'data': f'Error processing input: {e}'})
 
+# ----------------------------------------------------------------------
+# TRADITIONAL FLASK ROUTES (for Health Checks, Logs, etc.)
+# ----------------------------------------------------------------------
+
+# REMOVED: @app.route('/api/controller/input', methods=['POST'])
+# The logic for this is now entirely in handle_controller_input SocketIO event
 
 @app.route('/api/status', methods=['GET'])
 def get_status():
     return jsonify(demo_state)
 
+# This route remains useful for manual/external state resets
 @app.route('/api/reset', methods=['POST'])
-def reset_demo():
-    logger.info("Reset demo requested")
-    demo_state['current_slide'] = 0
-    demo_state['status'] = 'idle'
-    demo_state['controller_input'] = {}
-    socketio.emit('state_update', demo_state, namespace='/')
+def reset_demo_route():
+    reset_demo()
     return jsonify({'success': True, 'state': demo_state})
 
-@socketio.on('connect')
-def handle_connect():
-    try:
-        logger.info('Demo-site socket connected')
-        emit('state_update', demo_state)
-    except Exception as e:
-        logger.error(f'Error handling connect: {e}')
 
-
-@socketio.on('disconnect')
-def handle_disconnect():
-    try:
-        logger.info('Demo-site socket disconnected')
-    except Exception as e:
-        logger.error(f'Error handling disconnect: {e}')
-
-
+# Other existing routes for animation site clients (kept for completeness)
 @socketio.on('request_state')
 def handle_state_request():
     try:
@@ -248,6 +295,7 @@ def handle_state_request():
     except Exception as e:
         logger.error(f'Error handling state request: {e}')
 
+# Health and Log Routes (kept for completeness)
 @app.route('/health', methods=['GET'])
 def health_check():
     return jsonify({'status': 'healthy'})
@@ -302,9 +350,4 @@ def cleanup_interaction_logs():
 
 if __name__ == '__main__':
     logger.info("Starting Flask server on http://0.0.0.0:5000")
-    socketio.run(app, host='0.0.0.0', port=5000, debug=True, allow_unsafe_werkzeug=True)
-
-##TODO: Get user input to work with Adder
-
-##TODO: Flash Pi With Newest Stuff
-##TODO: Make Pi Script to Have it Autoboot the demo
+    socketio.run(app, host='0.0.0.0', port=5000, debug=False)

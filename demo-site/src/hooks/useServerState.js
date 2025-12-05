@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { io } from 'socket.io-client';
 
-//const BACKEND = 'https://pitt-cs-demo-server.onrender.com';
-const BACKEND = 'http://localhost:5000';
+const BACKEND = 'https://pitt-cs-demo-server.onrender.com';
+//const BACKEND = 'http://localhost:5000';
 
 
 let socket = null;
