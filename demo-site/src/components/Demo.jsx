@@ -73,7 +73,7 @@ export default function Demo({ slides, slideDuration }) {
                     size={128}
                     level="M"
                 />
-                <p className="text-xs text-center mt-2 text-gray-600">Scan to interact</p>
+                <p className="text-m text-center mt-2 text-gray-600">Scan to interact</p>
             </div>
         </div>
     );
