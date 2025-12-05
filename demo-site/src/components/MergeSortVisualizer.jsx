@@ -75,8 +75,8 @@ export default function MergeSortVisualizer() {
       toggle();
     }
 
-    // Handle reset command from server (when current_slide goes to 0 and status is idle)
-    if (state.status === 'playing' && (isRunning || completed)) {
+    // Handle reset command from server or home navigation
+    if ((state.status === 'playing' || state.status === 'home') && (isRunning || completed)) {
       reset();
     }
 

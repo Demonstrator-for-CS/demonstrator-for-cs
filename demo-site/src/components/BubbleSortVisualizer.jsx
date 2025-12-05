@@ -62,8 +62,8 @@ export default function BubbleSortVisualizer() {
       toggle();
     }
 
-    // Handle reset command from server
-    if (state.status === 'playing' && (isRunning || completed)) {
+    // Handle reset command from server or home navigation
+    if ((state.status === 'playing' || state.status === 'home') && (isRunning || completed)) {
       reset();
     }
 

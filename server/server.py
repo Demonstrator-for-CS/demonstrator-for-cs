@@ -194,12 +194,10 @@ def controller_input():
             demo_state['controller_input'] = payload
 
         elif action == 'navigate_to_home':
-            # Reset demo state and navigate to home
             demo_state['current_demo'] = None
             demo_state['current_slide'] = 0
             demo_state['status'] = 'home'
             demo_state['controller_input'] = {}
-            # Emit navigate_to_home event to trigger navigation on demo-site
 
         socketio.emit('state_update', demo_state, namespace='/')
 
