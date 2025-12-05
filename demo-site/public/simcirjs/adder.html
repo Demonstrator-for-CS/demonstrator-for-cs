@@ -45,8 +45,14 @@
                 if (outputNode) {
                     const isCurrentlyOn = outputNode.getValue() !== null;
                     // value is a boolean from the controller
-                    if (isCurrentlyOn !== value) {
-                        device.$ui.find('.simcir-basicset-toggle-knob').trigger('click');
+                    // Only interact if the state needs to change
+                    if (!!isCurrentlyOn !== !!value) {
+                        // The correct class for the clickable area is simcir-basicset-switch-button
+                        const $btn = device.$ui.find('.simcir-basicset-switch-button');
+                        // Simcir listens for mousedown to start the toggle interaction
+                        $btn.trigger('mousedown');
+                        // It then listens for mouseup on the document to complete it
+                        $(document).trigger('mouseup');
                     }
                 }
             }
@@ -64,35 +70,35 @@
         }
     </script>
 </head>
-    <body>
-        <div class="simcir">
-            {
-            "width": 1200,
-            "height": 700,
-            "showToolbox": false,
-            "devices":[
-            {"type":"DC","id":"dev0","x":24,"y":72,"label":"Power"},
-            {"type":"Toggle","id":"dev1","x":112,"y":16,"label":"A"},
-            {"type":"Toggle","id":"dev2","x":112,"y":120,"label":"B"},
-            {"type":"XOR","id":"dev3","x":256,"y":32,"label":"XOR"},
-            {"type":"AND","id":"dev4","x":256,"y":104,"label":"AND"},
-            {"type":"4bit7seg","id":"dev5","x":472,"y":8,"label":"4bit7seg"},
-            {"type":"LED","id":"dev6","x":464,"y":104,"label":"Sum"},
-            {"type":"LED","id":"dev7","x":464,"y":160,"label":"Carry"}
-            ],
-            "connectors":[
-            {"from":"dev1.in0","to":"dev0.out0"},
-            {"from":"dev2.in0","to":"dev0.out0"},
-            {"from":"dev3.in0","to":"dev1.out0"},
-            {"from":"dev3.in1","to":"dev2.out0"},
-            {"from":"dev4.in0","to":"dev1.out0"},
-            {"from":"dev4.in1","to":"dev2.out0"},
-            {"from":"dev5.in0","to":"dev3.out0"},
-            {"from":"dev5.in1","to":"dev4.out0"},
-            {"from":"dev6.in0","to":"dev3.out0"},
-            {"from":"dev7.in0","to":"dev4.out0"}
-            ]
-            }
-        </div>
-    </body>
+<body>
+<div class="simcir">
+    {
+    "width": 1200,
+    "height": 700,
+    "showToolbox": false,
+    "devices":[
+    {"type":"DC","id":"dev0","x":24,"y":72,"label":"Power"},
+    {"type":"Toggle","id":"dev1","x":112,"y":16,"label":"A"},
+    {"type":"Toggle","id":"dev2","x":112,"y":120,"label":"B"},
+    {"type":"XOR","id":"dev3","x":256,"y":32,"label":"XOR"},
+    {"type":"AND","id":"dev4","x":256,"y":104,"label":"AND"},
+    {"type":"4bit7seg","id":"dev5","x":472,"y":8,"label":"4bit7seg"},
+    {"type":"LED","id":"dev6","x":464,"y":104,"label":"Sum"},
+    {"type":"LED","id":"dev7","x":464,"y":160,"label":"Carry"}
+    ],
+    "connectors":[
+    {"from":"dev1.in0","to":"dev0.out0"},
+    {"from":"dev2.in0","to":"dev0.out0"},
+    {"from":"dev3.in0","to":"dev1.out0"},
+    {"from":"dev3.in1","to":"dev2.out0"},
+    {"from":"dev4.in0","to":"dev1.out0"},
+    {"from":"dev4.in1","to":"dev2.out0"},
+    {"from":"dev5.in0","to":"dev3.out0"},
+    {"from":"dev5.in1","to":"dev4.out0"},
+    {"from":"dev6.in0","to":"dev3.out0"},
+    {"from":"dev7.in0","to":"dev4.out0"}
+    ]
+    }
+</div>
+</body>
 </html>

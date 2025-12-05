@@ -15,8 +15,9 @@ load_dotenv()
 class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY')
     DEBUG = os.environ.get('FLASK_DEBUG', 'False').lower() == 'true'
-    CORS_ORIGINS = os.environ.get('CORS_ORIGINS', '*').split(',')
+    # CORS_ORIGINS = os.environ.get('CORS_ORIGINS', '*').split(',')
     LOG_LEVEL = os.environ.get('LOG_LEVEL', 'INFO')
+    CORS_ORIGINS = '*'
 
 
 # Initialize Flask app
@@ -164,20 +165,22 @@ def controller_input():
                 case 'next':
                     if demo_state['current_demo'] == 'logic-gates' and demo_state['current_slide'] == 7:
                         demo_state['current_slide'] = 0
-                    elif demo_state['current_demo'] == 'searching-sorting' and demo_state['current_slide'] == 33:
+                    elif demo_state['current_demo'] == 'searching-sorting' and demo_state['current_slide'] == 32:
                         demo_state['current_slide'] = 0
                         demo_state['status'] = 'playing' if demo_state['status'] == 'sorting' else demo_state['status']
                     else:
                         demo_state['current_slide'] += 1
+                        demo_state['status'] = 'playing' if demo_state['status'] == 'sorting' else demo_state['status']
                         demo_state['status'] = 'idle' if demo_state['status'] == 'home' else demo_state['status']
                 case 'prev':
                     if demo_state['current_demo'] == 'logic-gates' and demo_state['current_slide'] == 0:
                         demo_state['current_slide'] = 7
                     elif demo_state['current_demo'] == 'searching-sorting' and demo_state['current_slide'] == 0:
-                        demo_state['current_slide'] = 33
+                        demo_state['current_slide'] = 32
                         demo_state['status'] = 'playing' if demo_state['status'] == 'sorting' else demo_state['status']
                     else:
                         demo_state['current_slide'] = max(0, demo_state['current_slide'] - 1)
+                        demo_state['status'] = 'playing' if demo_state['status'] == 'sorting' else demo_state['status']
                         demo_state['status'] = 'idle' if demo_state['status'] == 'home' else demo_state['status']
 
         elif action == 'reset_animation':
@@ -299,7 +302,7 @@ def cleanup_interaction_logs():
 
 if __name__ == '__main__':
     logger.info("Starting Flask server on http://0.0.0.0:5000")
-    socketio.run(app, host='0.0.0.0', port=5000, debug=False)
+    socketio.run(app, host='0.0.0.0', port=5000, debug=True, allow_unsafe_werkzeug=True)
 
 ##TODO: Get user input to work with Adder
 

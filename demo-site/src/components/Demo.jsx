@@ -23,15 +23,9 @@ export default function Demo({ slides}) {
 
     // Sync with server state only when controller is active
     useEffect(() => {
-        const controllerActive = state.status === 'playing' || state.status === 'paused';
+        const controllerActive = state.status === 'playing' || state.status === 'paused' || state.status === 'sorting' || state.status === 'home';
         if (controllerActive && typeof state.current_slide === 'number') {
             const next = clampIndex(state.current_slide);
-            // Prevent wrap-to-start when we’re at the end of the deck and controller sends 0
-            const nearEnd = currentSlide >= slides.length - 2;
-            const wrapBack = next < currentSlide && next < 2;
-            if (nearEnd && wrapBack) {
-                return;
-            }
             if (next !== lastServerSlide.current) {
                 lastServerSlide.current = next;
                 setCurrentSlide(next);
@@ -40,6 +34,11 @@ export default function Demo({ slides}) {
         if (state.status === 'playing') {
             setIsPaused(false);
         } else if (state.status === 'paused') {
+            setIsPaused(true);
+        } else if (state.status === 'home') {
+            // Reset to first slide when navigating home
+            setCurrentSlide(0);
+            lastServerSlide.current = 0;
             setIsPaused(true);
         }
     }, [state.current_slide, state.status, clampIndex]);
