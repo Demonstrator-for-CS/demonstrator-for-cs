@@ -148,36 +148,64 @@ def handle_connect():
     Handle new WebSocket connections.
 
     Both the controller (phone) and demo-site (display) connect to this server.
-    The first connection is designated as the active controller. Subsequent
-    connections are treated as auxiliary (typically the demo-site).
+    Clients must send an 'identify' event after connecting to declare their role
+    (controller vs. demo-site).
 
     Connection lifecycle:
         1. Client connects via WebSocket
-        2. If no active controller, designate this as the active controller
-        3. Send welcome message and current demo state
+        2. Client sends 'identify' event with role information
+        3. Server designates controller based on role, not connection order
         4. Log connection to database for analytics
+    """
+    logger.info(f"[LOG: CONNECTION] New connection established. SID: {request.sid}, IP: {request.remote_addr}")
+    # Send welcome message and current state to newly connected client
+    emit('server_message', {'data': f'Connected. Please identify your role.'})
+    emit('state_update', demo_state)
 
-    Note: For a more robust solution, clients should send an 'identify' event
-    to explicitly declare their role (controller vs. demo-site).
+
+@socketio.on('identify')
+def handle_identify(data):
+    """
+    Handle client identification to determine role (controller vs. demo-site).
+
+    This allows the controller to always be recognized as the controller,
+    regardless of connection order. The demo-site will connect but not be
+    designated as the active controller.
+
+    Args:
+        data (dict): Identification data containing:
+            - role (str): Either 'controller' or 'demo-site'
     """
     global active_controller_sid
 
-    # If this is the first controller connecting, track it
-    if active_controller_sid is None:
-        active_controller_sid = request.sid
-        client_ip = request.remote_addr
+    role = data.get('role')
+    client_ip = request.remote_addr
 
-        logger.info(f"[LOG: CONTROLLER CONNECT] New controller connected. SID: {request.sid}, IP: {client_ip}")
+    if role == 'controller':
+        # Always set this connection as the active controller
+        old_controller_sid = active_controller_sid
+        active_controller_sid = request.sid
+
+        logger.info(f"[LOG: CONTROLLER CONNECT] Controller identified. SID: {request.sid}, IP: {client_ip}")
+
+        if old_controller_sid and old_controller_sid != request.sid:
+            logger.info(f"[LOG: CONTROLLER REPLACE] Replaced previous controller (SID: {old_controller_sid})")
+
         # Log interaction to database for analytics
         log_interaction('connect', f'Controller connected from {client_ip} (SID: {request.sid})')
 
-        # Send confirmation and current state to the newly connected controller
+        # Send confirmation to the controller
         emit('server_message', {'data': f'Welcome, Controller {request.sid[:4]}...'})
         emit('state_update', demo_state)
+
+    elif role == 'demo-site':
+        logger.info(f"[LOG: DEMO-SITE CONNECT] Demo-site identified. SID: {request.sid}, IP: {client_ip}")
+        emit('server_message', {'data': 'Welcome, Demo-Site.'})
+        emit('state_update', demo_state)
+
     else:
-        # If a controller is already active, this is likely the demo-site or a duplicate connection
-        logger.warning(f"Secondary connection attempted (SID: {request.sid}). Active controller is {active_controller_sid}.")
-        emit('server_message', {'data': 'A controller is already active. This connection is auxiliary.'})
+        logger.warning(f"[LOG: UNKNOWN ROLE] Unknown role '{role}' from SID: {request.sid}")
+        emit('server_message', {'data': f'Unknown role: {role}'})
 
 
 @socketio.on('disconnect')

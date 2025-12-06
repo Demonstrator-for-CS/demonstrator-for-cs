@@ -90,6 +90,8 @@ export function useServerState() {
       socket.on('connect', () => {
         sharedIsConnected = true;
         notifyListeners();
+        // Identify this client as the demo-site
+        socket.emit('identify', { role: 'demo-site' });
         // Request current state from server
         socket.emit('request_state');
       });

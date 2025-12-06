@@ -53,6 +53,8 @@ export const initializeSocket = (onConnect, onDisconnect) => {
     // Handle successful connection
     socket.on('connect', () => {
         console.log('Socket connected:', socket.id);
+        // Identify this client as the controller
+        socket.emit('identify', { role: 'controller' });
         if (onConnect) onConnect(socket.id);
     });
 
