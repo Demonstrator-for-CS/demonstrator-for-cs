@@ -15,8 +15,8 @@ function App() {
     <>
       <div className='controller-container'>
       </div>
-      <h3 style={{padding:'5px'}}>Searching and Sorting</h3>
       <div className="sorting-card">
+        <h3 style={{padding:'5px'}}>Searching and Sorting</h3>
         <div className="directions">
           <button onClick={() => navigate('prev')} id='left'>
             &#8656;
@@ -25,13 +25,13 @@ function App() {
             &#8658;
           </button>
         </div>
-        <p id = 'num-pad-title'>Searching Algorithm Controls</p>
-        <div className="sorting-algorithms" style = {{marginTop: '15px'}}>
-          <button onClick={() => startSorting()} id='start_sorting'>
+        <p id = 'sorting-title'>Searching Algorithm Controls</p>
+        <div className="sorting-controls-container" style = {{marginTop: '15px'}}>
+          <button onClick={() => startSorting()} className = 'sorting-controls' id='start_sorting'>
             Start
           </button>
 
-          <button onClick={() => reset()} id='reset_sorting'>
+          <button onClick={() => reset()} className = 'sorting-controls' id='reset_sorting'>
             Reset
           </button>
 
@@ -41,13 +41,12 @@ function App() {
           <button onClick={() => navigateHome()} id='home_button'>
             &#127968;
           </button>
-          <button onClick={() => pause()} id='pause_button'> || </button>
+          {/*<button onClick={() => pause()} id='pause_button'> || </button>*/}
         </div>
-
-      </div>
       <p className="read-the-docs" id = 'instructions'>
         Use these buttons to navigate through the demonstrator!
       </p>
+      </div>
     </>
   )
 }

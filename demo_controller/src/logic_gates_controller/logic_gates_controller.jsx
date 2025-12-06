@@ -28,8 +28,8 @@ function App() {
     <>
       <div>
       </div>
-      <h3 style={{padding: '5px'}}>Logic Gates</h3>
       <div className="logic-gates-card">
+        <h3 style={{padding: '5px'}}>Logic Gates</h3>
         <div className="directions">
           <button onClick={() => navigate('prev')} id='left'>
             &#8656;
@@ -38,22 +38,21 @@ function App() {
             &#8658;
           </button>
         </div>
-        <p id = 'num-pad-title'>Logic Gates Controls</p>
-        <div className="num-pad-container" style = {{marginTop: '15px'}}>
-          <button className = 'num-pad' onClick={handleInputA} style={{backgroundColor: inputA ? '#4CAF50' : '#f44336'}}>A</button>
-          <button className = 'num-pad' onClick={handleInputB} style={{backgroundColor: inputB ? '#4CAF50' : '#f44336'}}>B</button>
+        <p id = 'logic-gates-controls-title'>Logic Gates Controls</p>
+        <div className="logic-gates-inputs-container" style = {{marginTop: '15px'}}>
+          <button className = 'logic-gates-inputs' onClick={handleInputA}>A</button>
+          <button className = 'logic-gates-inputs' onClick={handleInputB}>B</button>
         </div>
         <div className="home" style = {{marginTop: '20px'}}>
           <button onClick={() => navigateHome()} id='home_button'>
             &#127968;
           </button>
-          <button onClick={() => pause()} id='pause_button'> || </button>
+          {/*<button onClick={() => pause()} id='pause_button'> || </button>*/}
         </div>
-
-      </div>
       <p className="read-the-docs" id = 'instructions'>
         Use these buttons to navigate through the demonstrator!
       </p>
+      </div>
     </>
   )
 }
