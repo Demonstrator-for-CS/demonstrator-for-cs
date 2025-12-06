@@ -1,23 +1,49 @@
+/**
+ * Logic Gates Controller Component
+ *
+ * This controller is displayed when the Logic Gates demo is active. It provides:
+ *     - Left/right arrow buttons to navigate between logic gate slides
+ *     - Input toggles (A and B) to control the logic gate inputs on the demo-site
+ *     - Home button to return to the demo selection screen
+ *
+ * The Logic Gates demo consists of 8 slides (0-7) that teach:
+ *     - Introduction to binary and logic gates
+ *     - OR, AND, XOR, NOT gates
+ *     - Combining gates to create complex circuits
+ *     - Building a simple adder circuit
+ *
+ * When users toggle input A or B, the change is immediately sent to the demo-site
+ * to update the interactive logic gate visualization.
+ */
 import { useState } from 'react'
 import '@/css/App.css'
 import { navigate, pause, sendLogicGatesInput, setDemo, navigateHome } from '@/services/api'
 import { useEffect } from 'react'
 
 function App() {
+  // Track the state of logic gate inputs A and B
   const [inputA, setInputA] = useState(false);
   const [inputB, setInputB] = useState(false);
 
-  // Set demo on mount
+  // Set the active demo when this controller mounts
   useEffect(() => {
     setDemo('logic-gates');
   }, []);
 
+  /**
+   * Toggle input A and send the updated values to the demo-site.
+   * The demo-site will update its logic gate visualization in real-time.
+   */
   const handleInputA = () => {
     const newValue = !inputA;
     setInputA(newValue);
     sendLogicGatesInput({ inputA: newValue, inputB });
   };
 
+  /**
+   * Toggle input B and send the updated values to the demo-site.
+   * The demo-site will update its logic gate visualization in real-time.
+   */
   const handleInputB = () => {
     const newValue = !inputB;
     setInputB(newValue);

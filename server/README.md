@@ -1,6 +1,53 @@
 # Demo Controller Flask Server
 
-This Flask server acts as a bridge between the demo controller and the demo site, handling controller input and broadcasting state updates in real-time.
+This Flask server acts as the central bridge between the demo-controller (remote phone interface) and the demo-site (display behind glass), managing state and relaying commands in real-time via WebSockets.
+
+## Project Architecture
+
+This project consists of three main components:
+
+### 1. demo-controller
+- **Purpose:** Remote controller accessed from users' phones
+- **Technology:** React + Socket.IO client
+- **Hosting:** GitHub Pages at https://demonstrator-for-cs.github.io/
+- **Access:** Users scan a QR code displayed on the demo-site to access the controller
+- **Functionality:** Provides UI controls for navigating demos and adjusting settings (e.g., logic gate inputs)
+
+### 2. demo-site
+- **Purpose:** Main demonstration display shown behind glass
+- **Technology:** React + Socket.IO client
+- **Hosting:** Typically run locally on a dedicated display machine
+- **Features:**
+  - Interactive CS demonstrations (Logic Gates, Searching & Sorting)
+  - QR code display for controller access
+  - Real-time synchronization with controller inputs
+  - Animated visualizations and slide presentations
+
+### 3. server (this directory)
+- **Purpose:** Central state management and communication bridge
+- **Technology:** Flask + Socket.IO + PostgreSQL (Supabase)
+- **Hosting:** Render.com at https://pitt-cs-demo-server.onrender.com
+- **Responsibilities:**
+  - Maintain global demo state (current demo, slide index, controller inputs)
+  - Relay controller commands to demo-site via WebSocket broadcasts
+  - Log user interactions to database for analytics
+  - Enforce single-controller access to prevent conflicts
+
+## Communication Flow
+
+```
+User's Phone (Controller)  ←→  Server  ←→  Demo Display (Site)
+       [React]                 [Flask]        [React]
+    WebSocket Client      WebSocket Server   WebSocket Client
+```
+
+1. User scans QR code and accesses demo-controller on their phone
+2. Controller establishes WebSocket connection to server
+3. Demo-site establishes WebSocket connection to server
+4. User presses buttons on controller (e.g., next slide, toggle input)
+5. Controller sends command to server via `controller_input` event
+6. Server updates global state and broadcasts `state_update` to all clients
+7. Demo-site receives state update and reflects changes (e.g., advances to next slide)
 
 ## Installation
 
@@ -103,17 +150,69 @@ The server will start on `http://localhost:5000`
   - Query params: `days` (default: 30) - Delete logs older than this many days
   - Example: `POST /api/interaction-log/cleanup?days=60`
 
-### WebSocket
-- Real-time state updates via Socket.IO on namespace `/`
+### WebSocket Events
+- **`controller_input`** (from controller): Unified event for all controller actions
+  - Actions: `navigate`, `set_demo`, `reset_animation`, `start_sorting`, `logic_gates_input`, `navigate_to_home`
+- **`state_update`** (to all clients): Broadcast when demo state changes
+- **`request_state`** (from demo-site): Request current state on connection
+- **`server_message`** (to clients): Server notifications and debugging messages
 
 ## State Structure
 
+The server maintains a global state object that is synchronized across all connected clients:
+
 ```json
 {
-  "status": "idle|playing|paused",
+  "status": "idle|playing|paused|sorting|home",
   "current_demo": "logic-gates|searching-sorting|null",
   "current_slide": 0,
   "speed": 1.0,
-  "controller_input": {}
+  "controller_input": {
+    "action": "logic_gates_input",
+    "payload": { "inputA": true, "inputB": false },
+    "timestamp": 1638360000000
+  }
 }
 ```
+
+### Available Demos
+
+#### Logic Gates (8 slides, index 0-7)
+- Introduction to binary and logic gates
+- OR, AND, XOR, NOT gates with interactive visualizations
+- Combining gates to create complex circuits
+- Building a simple adder circuit
+- Controller provides A/B input toggles
+
+#### Searching & Sorting (33 slides, index 0-32)
+- Binary search tree visualization
+- Breadth-first search (BFS) and depth-first search (DFS)
+- Finding minimum elements
+- Sorting algorithms visualization
+- Interactive tree exploration
+
+## Development Notes
+
+### File Structure
+```
+server/
+├── server.py          # Main Flask application with Socket.IO handlers
+├── database.py        # PostgreSQL interaction logging module
+├── requirements.txt   # Python dependencies
+├── Dockerfile         # Container configuration for deployment
+├── .env.example      # Environment variable template
+└── README.md         # This file
+```
+
+### Key Functions
+- **`handle_connect()`**: Manages WebSocket connections and controller assignment
+- **`handle_disconnect()`**: Cleanup when controller disconnects
+- **`handle_controller_input(data)`**: Main event handler for all controller actions
+- **`reset_demo()`**: Reset state to initial values
+- **`log_interaction()`**: Log events to database for analytics
+
+### Security Considerations
+- Only the first connected client is designated as the active controller
+- Controller session ID is validated for all input commands
+- Database credentials are optional - server runs without logging if not configured
+- CORS is configured for production origins
