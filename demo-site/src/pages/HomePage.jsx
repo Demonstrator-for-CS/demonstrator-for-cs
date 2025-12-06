@@ -1,3 +1,26 @@
+/**
+ * Demo-Site Home Page Component
+ *
+ * This is the main landing page displayed on the demo-site (behind glass).
+ * It shows a carousel of available demos and a QR code for users to scan
+ * and access the remote controller from their phones.
+ *
+ * The carousel is synchronized with the remote controller - when users press
+ * left/right arrows on their phone, this carousel animates in sync. When they
+ * select a demo, this page navigates to the corresponding demo view.
+ *
+ * Features:
+ *     - Animated 3D carousel of demo cards
+ *     - QR code in bottom-left corner linking to the controller
+ *     - Real-time synchronization with controller via WebSocket
+ *     - Smooth animations with wraparound navigation
+ *     - Keyboard navigation support (arrow keys)
+ *
+ * Controller Integration:
+ *     - Listens for 'navigate' actions from the controller
+ *     - Cycles through demos when 'next'/'prev' is received
+ *     - Launches demo when 'select' is received
+ */
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router";
 import QRCode from "react-qr-code";
@@ -7,12 +30,17 @@ import { useServerState } from "@/hooks/useServerState.js";
 export default function HomePage() {
     const [activeIndex, setActiveIndex] = useState(0);
     const navigate = useNavigate();
-    const offsetsRef = useRef(new Map());
-    const lastProcessedTimestamp = useRef(null);
+    const offsetsRef = useRef(new Map());  // Track carousel positions for smooth animation
+    const lastProcessedTimestamp = useRef(null);  // Prevent duplicate event processing
     const { state } = useServerState();
 
     const hasMultiple = demoCatalog.length > 1;
 
+    /**
+     * Cycle through the demo carousel.
+     *
+     * @param {string} direction - 'next' or 'prev'
+     */
     function cycle(direction) {
         if (!hasMultiple) return;
         const len = demoCatalog.length;
@@ -23,7 +51,13 @@ export default function HomePage() {
         );
     }
 
-    // Handle controller input from server
+    /**
+     * Handle controller input from server.
+     *
+     * This effect listens for navigation commands from the remote controller
+     * and updates the carousel accordingly. It uses timestamp-based deduplication
+     * to prevent processing the same command multiple times.
+     */
     useEffect(() => {
         if (!state.controller_input || !state.controller_input.action) return;
 
@@ -33,14 +67,16 @@ export default function HomePage() {
         if (timestamp && timestamp === lastProcessedTimestamp.current) return;
         lastProcessedTimestamp.current = timestamp;
 
+        // Handle navigation actions from controller
         if (action === 'navigate' && payload?.direction) {
             const { direction } = payload;
 
             if (direction === 'prev') {
-                cycle('prev');
+                cycle('prev');  // Move carousel backwards
             } else if (direction === 'next') {
-                cycle('next');
+                cycle('next');  // Move carousel forwards
             } else if (direction === 'select') {
+                // Launch the selected demo
                 if (payload.demoPath) {
                     navigate(payload.demoPath);
                 } else {
@@ -54,6 +90,13 @@ export default function HomePage() {
         }
     }, [state.controller_input, activeIndex, navigate, cycle]);
 
+    /**
+     * Generate carousel card positions with smooth wraparound animation.
+     *
+     * This memo calculates the horizontal offset for each demo card to create
+     * a 3D carousel effect. It uses the previous offsets to determine the best
+     * animation path when wrapping around (e.g., from last to first card).
+     */
     const carouselCards = useMemo(() => {
         const total = demoCatalog.length;
         if (total === 0) return [];

@@ -1,3 +1,28 @@
+"""
+Database Module for Interaction Logging
+
+This module handles persistent logging of user interactions with the demo system
+using a Supabase PostgreSQL database. It tracks events like controller connections,
+disconnections, and other analytics data.
+
+Database Schema:
+    Table: interaction_logs
+        - id: BIGSERIAL PRIMARY KEY
+        - event_type: VARCHAR(50) - Type of event (e.g., 'connect', 'disconnect')
+        - timestamp: TIMESTAMPTZ - When the event occurred
+        - details: TEXT - Additional event details (e.g., IP address, session ID)
+
+Environment Variables Required:
+    - DB_USER: PostgreSQL username
+    - DB_PASSWORD: PostgreSQL password
+    - DB_HOST: Database host address
+    - DB_PORT: Database port (default: 6543 for Supabase connection pooling)
+    - DB_NAME: Database name (default: postgres)
+
+Note: If database credentials are not configured, logging will fail gracefully
+      and the server will continue to operate without persistent logs.
+"""
+
 import os
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
@@ -13,10 +38,10 @@ logger = logging.getLogger(__name__)
 USER = os.getenv("DB_USER")
 PASSWORD = os.getenv("DB_PASSWORD")
 HOST = os.getenv("DB_HOST")
-PORT = os.getenv("DB_PORT", "6543")
+PORT = os.getenv("DB_PORT", "6543")  # 6543 is Supabase's connection pooling port
 DBNAME = os.getenv("DB_NAME", "postgres")
 
-# Debug logging to help diagnose credential issues
+# Debug logging to help diagnose credential issues during server startup
 logger.info("Database configuration check:")
 logger.info(f"  DB_USER: {'SET' if USER else 'MISSING'}")
 logger.info(f"  DB_PASSWORD: {'SET' if PASSWORD else 'MISSING'}")
@@ -27,12 +52,27 @@ logger.info(f"  DB_NAME: {DBNAME}")
 
 def log_interaction(event_type: str, details: str = None):
     """
-    Log an interaction event to Supabase PostgreSQL database.
+    Log an interaction event to the Supabase PostgreSQL database.
+
+    This function is called by the server when significant events occur, such as
+    controller connections and disconnections. It provides analytics data for
+    understanding demo usage patterns.
 
     Args:
-        event_type: Type of event (e.g., 'connect', 'disconnect')
-        details: Optional additional details about the event
+        event_type (str): Type of event (e.g., 'connect', 'disconnect', 'navigate')
+        details (str, optional): Additional context about the event
+            Examples:
+                - 'Controller connected from 192.168.1.1 (SID: abc123)'
+                - 'Demo switched to logic-gates'
+
+    Returns:
+        bool: True if logging succeeded, False if it failed or credentials missing
+
+    Note:
+        If database credentials are not configured, this function logs a warning
+        and returns False, but the server continues operating normally.
     """
+    # Validate that all required credentials are present
     if not all([USER, PASSWORD, HOST, PORT, DBNAME]):
         missing = []
         if not USER: missing.append("DB_USER")
@@ -44,6 +84,7 @@ def log_interaction(event_type: str, details: str = None):
         return False
 
     try:
+        # Connect to database using context manager for automatic cleanup
         with psycopg.connect(
             user=USER,
             password=PASSWORD,
@@ -52,7 +93,7 @@ def log_interaction(event_type: str, details: str = None):
             dbname=DBNAME
         ) as conn:
             with conn.cursor() as cursor:
-                # Insert interaction log
+                # Insert interaction log with current timestamp
                 cursor.execute(
                     """
                     INSERT INTO interaction_logs (event_type, timestamp, details)
@@ -72,13 +113,32 @@ def log_interaction(event_type: str, details: str = None):
 
 def get_interaction_logs(limit: int = 100):
     """
-    Retrieve interaction logs from Supabase PostgreSQL database.
+    Retrieve interaction logs from the Supabase PostgreSQL database.
+
+    This function is called by the /api/interaction-log endpoint to fetch
+    recent user interaction data for analytics and debugging purposes.
 
     Args:
-        limit: Maximum number of logs to retrieve (default: 100)
+        limit (int): Maximum number of logs to retrieve (default: 100)
 
     Returns:
-        List of interaction log entries, or empty list if database not configured
+        list: List of dictionaries, each containing:
+            - id (int): Log entry ID
+            - event_type (str): Type of event
+            - timestamp (str): ISO format timestamp
+            - details (str): Additional event details
+
+        Returns empty list if database is not configured or query fails.
+
+    Example return value:
+        [
+            {
+                "id": 123,
+                "event_type": "connect",
+                "timestamp": "2025-12-06T10:30:00",
+                "details": "Controller connected from 192.168.1.1"
+            }
+        ]
     """
     if not all([USER, PASSWORD, HOST, PORT, DBNAME]):
         logger.warning("Database credentials not configured. Returning empty logs.")
@@ -92,7 +152,7 @@ def get_interaction_logs(limit: int = 100):
             port=PORT,
             dbname=DBNAME
         ) as conn:
-            # Use dict_row to get results as dictionaries
+            # Use dict_row factory to get results as dictionaries instead of tuples
             with conn.cursor(row_factory=dict_row) as cursor:
                 # Retrieve logs ordered by timestamp (most recent first)
                 cursor.execute(
@@ -107,6 +167,7 @@ def get_interaction_logs(limit: int = 100):
 
                 results = cursor.fetchall()
 
+        # Convert timestamp to ISO format string for JSON serialization
         logs = []
         for row in results:
             log_entry = dict(row)
@@ -122,10 +183,23 @@ def get_interaction_logs(limit: int = 100):
 
 def clear_old_logs(days: int = 30):
     """
-    Delete logs older than specified number of days.
+    Delete interaction logs older than a specified number of days.
+
+    This function is useful for database maintenance and GDPR compliance,
+    allowing you to automatically purge old analytics data.
 
     Args:
-        days: Delete logs older than this many days (default: 30)
+        days (int): Delete logs older than this many days (default: 30)
+
+    Returns:
+        bool: True if deletion succeeded, False if it failed or credentials missing
+
+    Example:
+        # Delete logs older than 60 days
+        clear_old_logs(days=60)
+
+    Note:
+        The number of deleted rows is logged to the server logs for auditing.
     """
     if not all([USER, PASSWORD, HOST, PORT, DBNAME]):
         logger.warning("Database credentials not configured. Cannot clear logs.")
@@ -140,10 +214,10 @@ def clear_old_logs(days: int = 30):
             dbname=DBNAME
         ) as conn:
             with conn.cursor() as cursor:
-                # Calculate cutoff date
+                # Calculate cutoff date (e.g., 30 days ago from now)
                 cutoff_date = datetime.now() - timedelta(days=days)
 
-                # Delete old logs
+                # Delete all logs with timestamp before the cutoff date
                 cursor.execute(
                     """
                     DELETE FROM interaction_logs
@@ -152,6 +226,7 @@ def clear_old_logs(days: int = 30):
                     (cutoff_date,)
                 )
 
+                # Get count of deleted rows for logging
                 deleted_count = cursor.rowcount
                 conn.commit()
 
